@@ -10,13 +10,11 @@ interface Props {
 }
 
 export const Confirmation: React.FC<Props> = ({ petName, serviceName, date, time, price }) => {
-  // const missingInfo = !date || !time || !petName || !serviceName;
-  const missingInfo = false;
-  if (missingInfo) {
+  if (!date) {
     return (
       <div className="confirmation error">
         <h2>Erro na Confirmação</h2>
-        <p>Informações incompletas. Por favor, volte e preencha todos os dados necessários.</p>
+        <p>A data do agendamento é inválida. Por favor, tente novamente.</p>
       </div>
     );
   }

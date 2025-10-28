@@ -1,19 +1,19 @@
 import React from 'react';
-import { Service } from './types';
-import { SERVICES } from './services';
+import { Service } from '../../domain/entities';
 import './ServiceSelection.css';
 
 interface Props {
+  services: Service[];
   onSelect: (service: Service) => void;
   selectedService?: Service | null;
 }
 
-export const ServiceSelection: React.FC<Props> = ({ onSelect, selectedService }) => {
+export const ServiceSelection: React.FC<Props> = ({ services, onSelect, selectedService }) => {
   return (
     <div className="service-selection">
       <h2>Selecione o Serviço</h2>
       <div className="services-list">
-        {SERVICES.map(service => (
+        {services.map(service => (
           <label key={service.id} className={`service-item ${selectedService?.id === service.id ? 'selected' : ''}`}>
             <input
               type="radio"

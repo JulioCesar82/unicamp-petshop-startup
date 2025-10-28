@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './styles.css';
 import { useBooking } from './useBooking';
 import { StepIndicator } from './StepIndicator';
@@ -6,12 +6,44 @@ import { PetRegistration } from './PetRegistration';
 import { ServiceSelection } from './ServiceSelection';
 import { DateSelection } from './DateSelection';
 import { Confirmation } from './Confirmation';
+import { BookingRepository } from '../../data/BookingRepository';
+import { ServiceRepository } from '../../data/ServiceRepository';
+import { AvailabilityRepository } from '../../data/AvailabilityRepository';
+import { CreateBooking } from '../../application/CreateBooking';
+import { GetServices } from '../../application/GetServices';
+import { GetAvailableSlots } from '../../application/GetAvailableSlots';
+import { Pet, Service } from '../../domain/entities';
 
 interface BookingFlowProps {
   onClose: () => void;
+  initialPet?: Pet;
 }
 
-export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose }) => {
+const bookingRepository = new BookingRepository();
+const serviceRepository = new ServiceRepository();
+const availabilityRepository = new AvailabilityRepository();
+const createBookingUseCase = new CreateBooking(bookingRepository);
+const getServicesUseCase = new GetServices(serviceRepository);
+const getAvailableSlotsUseCase = new GetAvailableSlots(availabilityRepository);
+
+// Helper function to parse duration string to minutes
+function parseDurationToMinutes(duration: string): number {
+  if (!duration) return 60;
+  if (duration.includes('h')) {
+    const parts = duration.split('h');
+    const hours = parseInt(parts[0], 10) || 0;
+    const mins = parts[1] ? parseInt(parts[1].replace('m', ''), 10) || 0 : 0;
+    return hours * 60 + mins;
+  }
+  if (duration.includes('m')) {
+    return parseInt(duration.replace('m', ''), 10) || 60;
+  }
+  return 60;
+}
+
+export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, initialPet }) => {
+  const initialStep = true/*initialPet?.breed === ''*/ ? 2 : 1;
+
   const {
     currentStep,
     steps,
@@ -26,8 +58,31 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose }) => {
     setSelectedService,
     setSelectedDate,
     setSelectedTime,
-    initialStep,
-  } = useBooking({ onComplete: onClose, initialStep: 2 });
+  } = useBooking(createBookingUseCase, { onComplete: onClose, initialStep });
+
+  const [services, setServices] = useState<Service[]>([]);
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+
+  useEffect(() => {
+    getServicesUseCase.execute().then(setServices);
+  }, []);
+
+  useEffect(() => {
+    if (currentStep === 3 && !selectedDate) {
+      setSelectedDate(new Date());
+    }
+  }, [currentStep, selectedDate, setSelectedDate]);
+
+  useEffect(() => {
+    console.log('Selected Date or Service changed:', selectedDate, selectedService);
+    if (selectedDate && selectedService) {
+      const durationInMinutes = parseDurationToMinutes(selectedService.duration);
+      console.log('Fetching available slots for date:', selectedDate, 'with duration:', durationInMinutes);
+
+      getAvailableSlotsUseCase.execute(selectedDate, durationInMinutes)
+        .then(setAvailableSlots);
+    }
+  }, [selectedDate, selectedService]);
 
   let isNextButtonDisabled = false;
   if (currentStep === 2) {
@@ -59,6 +114,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose }) => {
 
           {currentStep === 2 && (
             <ServiceSelection
+              services={services}
               onSelect={setSelectedService}
               selectedService={selectedService}
             />
@@ -73,7 +129,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose }) => {
               onConfirm={next}
               selectedDate={selectedDate}
               selectedTime={selectedTime}
-              selectedService={selectedService}
+              availableSlots={availableSlots}
             />
           )}
 
