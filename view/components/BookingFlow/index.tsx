@@ -26,7 +26,15 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose }) => {
     setSelectedService,
     setSelectedDate,
     setSelectedTime,
-  } = useBooking({ onComplete: onClose });
+    initialStep,
+  } = useBooking({ onComplete: onClose, initialStep: 2 });
+
+  let isNextButtonDisabled = false;
+  if (currentStep === 2) {
+    isNextButtonDisabled = !selectedService;
+  } else if (currentStep === 3) {
+    isNextButtonDisabled = !selectedDate || !selectedTime;
+  }
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -51,10 +59,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose }) => {
 
           {currentStep === 2 && (
             <ServiceSelection
-              onSelect={(service) => {
-                setSelectedService(service);
-                next();
-              }}
+              onSelect={setSelectedService}
               selectedService={selectedService}
             />
           )}
@@ -93,6 +98,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose }) => {
           <button
             className="primary-button"
             onClick={currentStep === steps.length ? complete : next}
+            disabled={isNextButtonDisabled}
           >
             {currentStep === steps.length ? 'Confirmar Agendamento' : 'Próximo'}
           </button>

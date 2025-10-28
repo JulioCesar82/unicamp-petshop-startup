@@ -1,9 +1,10 @@
 import React from 'react';
 import { PetRegistrationData, Service, UseBookingOptions } from './types';
 
-export function useBooking(options?: UseBookingOptions) {
+export function useBooking(options?: UseBookingOptions & { initialStep?: number }) {
   const steps = ['Cadastro', 'Serviço', 'Agendamento', 'Confirmação'];
-  const [currentStep, setCurrentStep] = React.useState<number>(1);
+  const initialStep = options?.initialStep || 1;
+  const [currentStep, setCurrentStep] = React.useState<number>(initialStep);
   const [petData, setPetData] = React.useState<PetRegistrationData | null>(null);
   const [selectedService, setSelectedService] = React.useState<Service | null>(null);
   const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
@@ -25,6 +26,7 @@ export function useBooking(options?: UseBookingOptions) {
   return {
     steps,
     currentStep,
+    initialStep,
     petData,
     selectedService,
     selectedDate,

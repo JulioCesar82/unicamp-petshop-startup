@@ -33,9 +33,16 @@ function formatTime(date: Date) {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-export const DateSelection: React.FC<Props> = ({ onSelect, onConfirm, selectedService, selectedDate, selectedTime }) => {
+export const DateSelection: React.FC<Props> = ({ onSelect, selectedService, selectedDate, selectedTime }) => {
   const [tempDate, setTempDate] = React.useState<Date | null>(selectedDate || null);
   const [tempTime, setTempTime] = React.useState<string | null>(selectedTime || null);
+
+  React.useEffect(() => {
+    if (tempDate && tempTime) {
+      onSelect(tempDate, tempTime);
+    }
+  }, [tempDate, tempTime, onSelect]);
+
 
   // If no service selected, ask user to pick one first
   if (!selectedService) {
@@ -53,13 +60,6 @@ export const DateSelection: React.FC<Props> = ({ onSelect, onConfirm, selectedSe
 
   const handleTimeSelect = (time: string) => {
     setTempTime(time);
-  };
-
-  const handleConfirm = () => {
-    if (tempDate && tempTime) {
-      onSelect(tempDate, tempTime);
-      onConfirm();
-    }
   };
 
   const durationMin = parseDurationToMinutes(selectedService.duration);
