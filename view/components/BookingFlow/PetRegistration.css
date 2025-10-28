@@ -1,0 +1,68 @@
+.pet-registration-form {
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1em;
+}
+
+.form-row {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row label {
+  display: flex;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-row input[type="text"],
+.form-row input[type="date"] {
+  padding: 0.75rem;
+  flex: 1;
+  border: 1px solid #E5E5E5;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.radio-group {
+  display: flex;
+  gap: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0;
+}
+
+.radio-label i {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.photo-upload-button {
+  background: #f5f5f5;
+  border: 1px solid #E5E5E5;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.photo-upload-button:hover {
+  background: #e8e8e8;
+  color: #333;
+}
