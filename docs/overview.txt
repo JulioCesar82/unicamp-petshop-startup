@@ -1,0 +1,76 @@
+Temos esse repositório para ser um ambiente de laboratório para estudos com Apache Hadoop com Redis e PostgreSQL via Jupyter notebook. O objetivo é criar um ambiente de desenvolvimento e aprendizado autocontido e fácil de replicar, utilizando essas tecnologias em container. Também usamos o site 'https://mybinder.org/' para executar o Container...
+
+
+
+## Project Overview: Self-Contained Big Data Lab Environment
+
+This project provides a fully containerized, portable lab environment for big data studies, orchestrated by Docker. It includes a complete suite of tools, including the Hadoop ecosystem, common databases, and a web-based development interface via JupyterLab and VSCode.
+
+### Core Technologies
+
+*   **Containerization**: Docker
+*   **Base Image**: `quay.io/jupyter/base-notebook:latest` (Debian-based with Python and Conda)
+*   **Primary Interface**: JupyterLab
+*   **Big Data Stack**:
+    *   Apache Hadoop 2.9.2 (HDFS & YARN)
+    *   Apache Hive 2.3.9
+    *   Apache HBase 2.2.5
+    *   Apache Sqoop 1.4.7
+    *   Apache Flume 1.9.0
+*   **Databases**:
+    *   PostgreSQL
+    *   Redis
+*   **Development Tools**:
+    *   VSCode Server (code-server 3.4.1)
+    *   Python with common data science libraries (Pandas, Numpy, etc.)
+
+### Architecture and Design
+
+The environment is built using a **multi-stage Dockerfile-jupter** to create an optimized and lean final image. This approach separates the build-time dependencies from the runtime environment, significantly reducing the image size.
+
+**1. `Dockerfile-jupter` (`Dockerfile-jupter`)**
+
+This is the central component that defines the build process. It is structured in two main stages:
+
+*   **Stage 1: `builder`**
+    *   This stage's sole purpose is to download and extract the large `.tar.gz` archives for Hadoop, Hive, HBase, Sqoop, Flume, and VSCode.
+    *   All downloaded archives and temporary files are isolated to this stage and are **not** included in the final image.
+
+*   **Stage 2: Final Image**
+    *   This stage starts from a fresh base image.
+    *   It installs all necessary system dependencies (e.g., `postgresql`, `redis-server`, `openjdk-8`) and Python packages (`pip install ...`).
+    *   It uses `COPY --from=builder` to copy the clean, pre-extracted application directories from the `builder` stage. This is the key step for size optimization.
+    *   It copies local configuration files (e.g., for Hadoop) into the image.
+    *   It sets up the non-root `jovyan` user, including SSH keys and directory permissions.
+    *   It defines the `entrypoint.sh` script as the container's entrypoint.
+
+**2. Modular Installation Scripts (`resources/scripts/`)**
+
+To keep the `Dockerfile-jupter` clean and maintainable, the installation logic is broken down into several single-purpose shell scripts:
+
+*   `install_system_deps.sh`: Installs all system packages using `apt-get`.
+*   `install_dev_tools.sh`: Installs Node.js and OpenJDK.
+*   `install_python_deps.sh`: Installs all required Python libraries using `pip`.
+*   `install_jupyter_ext.sh`: Installs JupyterLab extensions (`beakerx`).
+*   `setup_user.sh`: Creates necessary directories and configures SSH for the `jovyan` user.
+
+**3. Runtime Execution (`resources/entrypoint.sh`)**
+
+This script is executed every time a container is started from the image. Its responsibilities are:
+
+*   Start all necessary background services in the correct order:
+    1.  Redis Server
+    2.  SSHD (for Hadoop)
+    3.  PostgreSQL Server
+*   Configure the PostgreSQL database by creating the `jovyan` user and database (this must be done at runtime when the service is active).
+*   Initialize and start the Hadoop services (HDFS and YARN).
+*   Start the HBase service.
+*   Start the VSCode server.
+*   Finally, it executes the default command (`CMD`), which is `start-notebook.sh` to launch JupyterLab.
+
+### Configuration
+
+*   **Hadoop**: Configuration files (`core-site.xml`, `hdfs-site.xml`, etc.) are located in `resources/configs/hadoop/` and are copied into the correct location within the Hadoop installation during the Docker build.
+*   **PostgreSQL**: The `entrypoint.sh` script configures a user named `jovyan` with the password `jovyan` and creates a database named `jovyan` owned by this user.
+
+This setup results in a robust, portable, and optimized Docker image that provides a complete and ready-to-use environment for big data experimentation.

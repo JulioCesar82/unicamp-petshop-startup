@@ -1,0 +1,9 @@
+Port 8822
+
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+PidFile /var/run/sshd.pid
+PubkeyAuthentication yes
+AuthorizedKeysFile /home/jovyan/.ssh/authorized_keys
+StrictModes no

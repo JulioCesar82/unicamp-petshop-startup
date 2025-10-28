@@ -1,0 +1,27 @@
+{
+  "name": "pet-booking-view",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "homepage": "https://JulioCesar82.github.io/lab-hadoop-for-pet",
+  "dependencies": {
+    "@types/node": "^16.18.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^4.9.5"
+  },
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview",
+    "deploy": "gh-pages -d dist"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.0",
+    "gh-pages": "^6.3.0",
+    "vite": "^4.3.9"
+  }
+}
