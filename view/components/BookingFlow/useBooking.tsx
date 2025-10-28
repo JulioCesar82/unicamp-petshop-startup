@@ -2,7 +2,7 @@ import React from 'react';
 import { PetRegistrationData, Service, UseBookingOptions } from './types';
 
 export function useBooking(options?: UseBookingOptions) {
-  const steps = ['Cadastro', 'Serviço', 'Data', 'Confirmação'];
+  const steps = ['Cadastro', 'Serviço', 'Agendamento', 'Confirmação'];
   const [currentStep, setCurrentStep] = React.useState<number>(1);
   const [petData, setPetData] = React.useState<PetRegistrationData | null>(null);
   const [selectedService, setSelectedService] = React.useState<Service | null>(null);

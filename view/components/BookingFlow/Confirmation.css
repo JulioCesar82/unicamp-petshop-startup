@@ -1,0 +1,61 @@
+.confirmation {
+  padding: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.confirmation h2 {
+  color: #333;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.confirmation-details {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row .label {
+  color: #666;
+  font-weight: 500;
+}
+
+.detail-row .value {
+  color: #333;
+  font-weight: 600;
+}
+
+.detail-row.total {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px solid #eee;
+}
+
+.detail-row.total .label,
+.detail-row.total .value {
+  font-size: 1.2em;
+  color: #4CAF50;
+}
+
+.confirmation.error {
+  text-align: center;
+  color: #d32f2f;
+}
+
+.confirmation.error p {
+  margin-top: 16px;
+  color: #666;
+}

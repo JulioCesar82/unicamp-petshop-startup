@@ -64,8 +64,8 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose }) => {
               onSelect={(date, time) => {
                 setSelectedDate(date);
                 setSelectedTime(time);
-                next();
               }}
+              onConfirm={next}
               selectedDate={selectedDate}
               selectedTime={selectedTime}
               selectedService={selectedService}
