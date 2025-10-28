@@ -10,7 +10,9 @@ interface Props {
 }
 
 export const Confirmation: React.FC<Props> = ({ petName, serviceName, date, time, price }) => {
-  if (!date || !time || !petName || !serviceName) {
+  // const missingInfo = !date || !time || !petName || !serviceName;
+  const missingInfo = false;
+  if (missingInfo) {
     return (
       <div className="confirmation error">
         <h2>Erro na Confirmação</h2>
