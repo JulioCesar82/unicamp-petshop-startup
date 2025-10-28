@@ -1,0 +1,30 @@
+# Node.js
+node_modules/
+package-lock.json
+yarn.lock
+.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+dist/
+build/
+coverage/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Optional: if you have specific temporary files or logs
+tmp/
+logs/
+*.log
