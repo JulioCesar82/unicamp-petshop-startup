@@ -1,6 +1,7 @@
 import React from 'react';
 import { Service } from './types';
 import { SERVICES } from './services';
+import './ServiceSelection.css';
 
 interface Props {
   onSelect: (service: Service) => void;

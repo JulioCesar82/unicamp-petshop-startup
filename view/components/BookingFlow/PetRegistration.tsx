@@ -1,5 +1,6 @@
 import React from 'react';
 import { PetRegistrationData } from './types';
+import './PetRegistration.css';
 
 interface Props {
   onSubmit: (data: PetRegistrationData) => void;

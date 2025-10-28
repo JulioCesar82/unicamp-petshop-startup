@@ -1,0 +1,13 @@
+.services-list {
+  display: flex;
+}
+
+.service-item {
+  display: flex;
+  gap: 0.5em;
+}
+
+.service-title-row {
+  gap: 0.5em;
+  display: flex;
+}
