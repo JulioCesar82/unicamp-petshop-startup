@@ -1,0 +1,104 @@
+FROM quay.io/jupyter/base-notebook:ubuntu-22.04
+
+# --- Configuração do sistema como usuário root ---
+USER root
+
+# Define as variáveis de ambiente
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+ENV PATH=$PATH:${JAVA_HOME}/bin
+
+ENV HADOOP_VERSION=2.9.2
+ENV HIVE_VERSION=2.3.9
+ENV SQOOP_VERSION=1.4.7
+ENV HBASE_VERSION=2.2.5
+ENV FLUME_VERSION=1.9.0
+ENV CODE_SERVER_VERSION=3.4.1
+
+ENV HADOOP_HOME=/home/${NB_USER}/resources/hadoop-${HADOOP_VERSION}
+ENV HIVE_HOME=/home/${NB_USER}/resources/hive-${HIVE_VERSION}
+ENV SQOOP_HOME=/home/${NB_USER}/resources/sqoop-${SQOOP_VERSION}
+ENV HBASE_HOME=/home/${NB_USER}/resources/hbase-${HBASE_VERSION}
+ENV FLUME_HOME=/home/${NB_USER}/resources/flume-${FLUME_VERSION}
+ENV CODE_SERVER_HOME=/home/${NB_USER}/resources/code-server-${CODE_SERVER_VERSION}
+
+ENV PATH=$PATH:${HADOOP_HOME}/bin:${HADOOP_HOME}/sbin:${HIVE_HOME}/bin:${SQOOP_HOME}/bin:${HBASE_HOME}/bin:${FLUME_HOME}/bin:${CODE_SERVER_HOME}/bin
+ENV HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no -p 8822"
+ENV PDSH_RCMD_TYPE=ssh
+
+# Copia scripts de instalação de dependências gerais, dependências Python e Jupyter
+COPY resources/scripts/ /usr/local/bin/
+COPY resources/entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/*.sh
+
+WORKDIR /home/${NB_USER}/resources
+
+RUN sed -i 's/\r$//' /usr/local/bin/*.sh && \
+    /usr/local/bin/set_env_vars.sh && \
+    /usr/local/bin/install_system_deps.sh && \
+    /usr/local/bin/install_dev_tools.sh && \
+    /usr/local/bin/install_big_data_tools.sh && \
+    /usr/local/bin/install_python_deps.sh && \
+    /usr/local/bin/install_jupyter_ext.sh
+
+# Ensure all resources are owned by the non-root user
+RUN chown -R ${NB_USER}:${NB_GID} /home/${NB_USER}/resources
+
+# Set correct permissions for the user's home directory and remove set-UID/set-GID bits
+RUN chmod 700 /home/${NB_USER} && chmod u-s,g-s /home/${NB_USER}
+
+# --- Configuração a nível de usuário ---
+USER ${NB_USER}
+
+# As variáveis de ambiente agora são definidas em /etc/profile.d/set_env_vars.sh
+
+# Run setup_user.sh as NB_USER to generate SSH keys in the correct home directory
+RUN /usr/local/bin/setup_user.sh && \
+    chown -R ${NB_USER}:${NB_GID} /home/${NB_USER}/.ssh && \
+    echo "--- Debugging SSH permissions and content ---" && \
+    ls -la /home/${NB_USER}/.ssh && \
+    cat /home/${NB_USER}/.ssh/authorized_keys && \
+    echo "--- End Debugging SSH permissions and content ---"
+
+# Copia os arquivos de configuração do Hadoop com a propriedade correta
+COPY --chown=${NB_USER}:${NB_GID} resources/configs/hadoop/${HADOOP_VERSION}/* ${HADOOP_HOME}/etc/hadoop/
+RUN sed -i 's/\r$//' ${HADOOP_HOME}/etc/hadoop/hadoop-env.sh
+
+# Copia os arquivos de configuração do Sqoop
+COPY --chown=${NB_USER}:${NB_GID} resources/configs/sqoop/* ${SQOOP_HOME}/conf/
+# --- Configuração final como root ---
+USER root
+
+# Garante que o usuário non-root tenha permissão para modificar os diretórios
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir -p /var/run/postgresql && \
+    chown -R ${NB_USER}:${NB_GID} /var/run/postgresql /var/lib/postgresql && \
+    chmod -R 775 /var/run/postgresql /var/lib/postgresql && \
+    echo "${NB_USER}:password" | chpasswd && \
+    usermod -U ${NB_USER}
+
+# Generate SSH host keys and set permissions
+RUN mkdir -p /var/run/sshd && \
+    mkdir -p /etc/ssh && \
+    rm -f /etc/ssh/ssh_host_* && \
+    ssh-keygen -A && \
+    chmod 777 /etc/ssh/*_key && \
+    chmod 777 /etc/ssh/*.pub && \
+    chown root:root /etc/ssh/* && \
+    chmod 777 /etc/ssh && \
+    ls -la /etc/ssh
+
+# Copia o arquivo de configuração do SSH para o local padrão
+COPY resources/configs/ssh/sshd_config /etc/ssh/sshd_config
+
+# --- Volta para o usuário non-root ---
+USER ${NB_USER}
+
+# Retorna ao diretório de trabalho padrão para notebooks
+WORKDIR /home/${NB_USER}/work
+
+# Copia os arquivos do JupterLab para o diretório de trabalho
+COPY --chown=${NB_USER}:${NB_GID} labs/* .
+
+# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# RUN /usr/local/bin/entrypoint.sh

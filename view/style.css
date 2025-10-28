@@ -1,0 +1,91 @@
+.home-page {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+}
+
+.home-page .body {
+  display: flex;
+  flex-direction: column;
+  gap: 81px;
+  height: 961px;
+  margin-left: 47px;
+  margin-top: 24px;
+  width: 2589px;
+}
+
+.home-page .carrosel {
+  height: 536px;
+  width: 1933px;
+}
+
+.home-page .products {
+  height: 344px;
+  margin-left: 1px;
+  position: relative;
+  width: 1847.83px;
+}
+
+.home-page .product {
+  aspect-ratio: 1.01;
+  height: 270px;
+  left: 1572px;
+  object-fit: cover;
+  position: absolute;
+  top: 72px;
+  width: 274px;
+}
+
+.home-page .product-2 {
+  aspect-ratio: 1.03;
+  height: 275px;
+  left: 1188px;
+  object-fit: cover;
+  position: absolute;
+  top: 67px;
+  width: 284px;
+}
+
+.home-page .product-3 {
+  aspect-ratio: 1.07;
+  height: 270px;
+  left: 769px;
+  object-fit: cover;
+  position: absolute;
+  top: 72px;
+  width: 290px;
+}
+
+.home-page .product-4 {
+  aspect-ratio: 1.04;
+  height: 275px;
+  left: 383px;
+  object-fit: cover;
+  position: absolute;
+  top: 69px;
+  width: 286px;
+}
+
+.home-page .product-5 {
+  aspect-ratio: 1.03;
+  height: 274px;
+  left: 0;
+  object-fit: cover;
+  position: absolute;
+  top: 70px;
+  width: 282px;
+}
+
+.home-page .text-wrapper-19 {
+  color: #000000;
+  font-family: "Inter-Bold", Helvetica;
+  font-size: 32px;
+  font-weight: 700;
+  left: 3px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 0;
+}
