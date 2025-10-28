@@ -1,13 +1,13 @@
 import React from 'react';
-import { PetRegistrationData } from './types';
+import { Pet } from '../../domain/entities';
 import './PetRegistration.css';
 
 interface Props {
-  onSubmit: (data: PetRegistrationData) => void;
+  onSubmit: (data: Pet) => void;
 }
 
 export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
-  const [formData, setFormData] = React.useState<Partial<PetRegistrationData>>({
+  const [formData, setFormData] = React.useState<Partial<Pet>>({
     species: 'dog',
     size: 'small',
     furType: 'small',
@@ -16,7 +16,7 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.name && formData.breed && formData.birthDate) {
-      onSubmit(formData as PetRegistrationData);
+      onSubmit(formData as Pet);
     }
   };
 

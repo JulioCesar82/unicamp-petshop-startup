@@ -68,6 +68,9 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  max-inline-size: fit-content;
+  font-size: x-large;
+  margin: auto;
 }
 
 .day:hover:not(.empty):not(.past):not(.selected) {

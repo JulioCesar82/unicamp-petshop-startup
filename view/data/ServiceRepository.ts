@@ -1,6 +1,7 @@
-import { Service } from './types';
+import { Service } from '../domain/entities';
+import { IServiceRepository } from '../domain/repositories';
 
-export const SERVICES: Service[] = [
+const SERVICES: Service[] = [
   {
     id: 'basic-grooming',
     name: 'Banho Básico',
@@ -24,4 +25,9 @@ export const SERVICES: Service[] = [
   },
 ];
 
-export default SERVICES;
+export class ServiceRepository implements IServiceRepository {
+  async getServices(): Promise<Service[]> {
+    // In a real application, this would fetch data from an API
+    return Promise.resolve(SERVICES);
+  }
+}

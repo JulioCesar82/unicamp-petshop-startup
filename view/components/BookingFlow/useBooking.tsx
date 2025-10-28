@@ -1,16 +1,23 @@
 import React from 'react';
-import { PetRegistrationData, Service, UseBookingOptions } from './types';
+import { Pet, Service } from '../../domain/entities';
+import { CreateBooking } from '../../application/CreateBooking';
 
-export function useBooking(options?: UseBookingOptions & { initialStep?: number }) {
+interface UseBookingOptions {
+  initialStep?: number;
+  onComplete?: () => void;
+}
+
+export function useBooking(createBookingUseCase: CreateBooking, options: UseBookingOptions = {}) {
+  const { initialStep = 1, onComplete } = options;
   const steps = ['Cadastro', 'Serviço', 'Agendamento', 'Confirmação'];
-  const initialStep = options?.initialStep || 1;
   const [currentStep, setCurrentStep] = React.useState<number>(initialStep);
-  const [petData, setPetData] = React.useState<PetRegistrationData | null>(null);
+  const [petData, setPetData] = React.useState<Pet | null>(null);
   const [selectedService, setSelectedService] = React.useState<Service | null>(null);
   const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = React.useState<string | null>(null);
 
   const next = React.useCallback(() => {
+    console.log('Current Step before next():', currentStep);
     setCurrentStep(s => Math.min(s + 1, steps.length));
   }, []);
 
@@ -18,15 +25,21 @@ export function useBooking(options?: UseBookingOptions & { initialStep?: number 
     setCurrentStep(s => Math.max(s - 1, 1));
   }, []);
 
-  const complete = React.useCallback(() => {
-    // place to add saving logic, API calls, analytics, etc.
-    options?.onComplete && options.onComplete();
-  }, [options]);
+  const complete = React.useCallback(async () => {
+    if (petData && selectedService && selectedDate && selectedTime) {
+      await createBookingUseCase.execute({
+        pet: petData,
+        service: selectedService,
+        date: selectedDate,
+        time: selectedTime,
+      });
+      onComplete?.();
+    }
+  }, [petData, selectedService, selectedDate, selectedTime, createBookingUseCase, onComplete]);
 
   return {
     steps,
     currentStep,
-    initialStep,
     petData,
     selectedService,
     selectedDate,

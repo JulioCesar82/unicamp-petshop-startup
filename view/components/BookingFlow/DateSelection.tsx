@@ -1,39 +1,15 @@
 import React from 'react';
-import { Service } from './types';
 import './DateSelection.css';
 
 interface Props {
   onSelect: (date: Date, time: string) => void;
   selectedDate?: Date | null;
   selectedTime?: string | null;
-  selectedService?: Service | null;
+  availableSlots: string[];
   onConfirm: () => void;
 }
 
-function parseDurationToMinutes(duration: string) {
-  // supports formats like '1h', '1h30', '90m'
-  if (!duration) return 60;
-  // better parsing: split by 'h' or 'm'
-  if (duration.includes('h')) {
-    const parts = duration.split('h');
-    const hours = parseInt(parts[0], 10) || 0;
-    const mins = parts[1] ? parseInt(parts[1].replace('m', '').replace(':', ''), 10) || 0 : 0;
-    return hours * 60 + mins;
-  }
-  if (duration.includes('m')) {
-    return parseInt(duration.replace('m', ''), 10) || 60;
-  }
-  // fallback: parse as number of hours
-  const num = parseFloat(duration);
-  if (!isNaN(num)) return Math.round(num * 60);
-  return 60;
-}
-
-function formatTime(date: Date) {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-export const DateSelection: React.FC<Props> = ({ onSelect, selectedService, selectedDate, selectedTime }) => {
+export const DateSelection: React.FC<Props> = ({ onSelect, selectedDate, selectedTime, availableSlots }) => {
   const [tempDate, setTempDate] = React.useState<Date | null>(selectedDate || null);
   const [tempTime, setTempTime] = React.useState<string | null>(selectedTime || null);
 
@@ -43,17 +19,6 @@ export const DateSelection: React.FC<Props> = ({ onSelect, selectedService, sele
     }
   }, [tempDate, tempTime, onSelect]);
 
-
-  // If no service selected, ask user to pick one first
-  if (!selectedService) {
-    return (
-      <div className="date-selection">
-        <h2>Selecione a Data e Horário</h2>
-        <p>Escolha um serviço primeiro para ver os horários disponíveis.</p>
-      </div>
-    );
-  }
-
   const handleDateSelect = (date: Date) => {
     setTempDate(date);
   };
@@ -61,11 +26,6 @@ export const DateSelection: React.FC<Props> = ({ onSelect, selectedService, sele
   const handleTimeSelect = (time: string) => {
     setTempTime(time);
   };
-
-  const durationMin = parseDurationToMinutes(selectedService.duration);
-  const openingHour = 9;
-  const closingHour = 18; // last possible end time
-  const slotStep = 30; // minutes between possible start times
 
   const today = new Date();
   const currentMonth = tempDate?.getMonth() ?? today.getMonth();
@@ -77,21 +37,6 @@ export const DateSelection: React.FC<Props> = ({ onSelect, selectedService, sele
   const startingDay = firstDay.getDay();
   const totalDays = lastDay.getDate();
   
-  // Generate time slots
-  const slots: string[] = [];
-  const baseDate = tempDate || today;
-
-  for (let hour = openingHour; hour < closingHour; hour++) {
-    for (let minute = 0; minute < 60; minute += slotStep) {
-      const start = new Date(baseDate);
-      start.setHours(hour, minute, 0, 0);
-      const end = new Date(start.getTime() + durationMin * 60 * 1000);
-      if (end.getHours() < closingHour || (end.getHours() === closingHour && end.getMinutes() === 0)) {
-        slots.push(formatTime(start));
-      }
-    }
-  }
-
   // Month navigation
   const prevMonth = () => {
     const newDate = new Date(currentYear, currentMonth - 1);
@@ -116,9 +61,9 @@ export const DateSelection: React.FC<Props> = ({ onSelect, selectedService, sele
       
       <div className="calendar">
         <div className="calendar-header">
-          <button onClick={prevMonth} className="nav-button">&lt;</button>
+          <button onClick={prevMonth} className="nav-button">{'<'}</button>
           <h3>{months[currentMonth]} {currentYear}</h3>
-          <button onClick={nextMonth} className="nav-button">&gt;</button>
+          <button onClick={nextMonth} className="nav-button">{'>'}</button>
         </div>
 
         <div className="weekdays">
@@ -158,10 +103,10 @@ export const DateSelection: React.FC<Props> = ({ onSelect, selectedService, sele
       <div className="time-slots">
         <h3>Horários Disponíveis</h3>
         <div className="slots-grid">
-          {slots.length === 0 ? (
+          {availableSlots.length === 0 ? (
             <p>Sem horários disponíveis para o serviço selecionado.</p>
           ) : (
-            slots.map((time) => (
+            availableSlots.map((time) => (
               <button
                 key={time}
                 className={`time-slot-button ${tempTime === time ? 'selected' : ''}`}
