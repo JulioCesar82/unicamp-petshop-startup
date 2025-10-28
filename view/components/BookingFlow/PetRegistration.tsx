@@ -27,94 +27,29 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit} className="pet-registration-form">
-      <div className="form-row">
-        <label>
-          Nome do pet:
+
+      <div className='col-6'>
+        <div className="form-row">
+          <label>Nome do pet:</label>
           <input
             type="text"
             value={formData.name || ''}
             onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
             required
           />
-        </label>
-      </div>
-
-      <div className="form-row">
-        <label className="species-label">
-          Espécie:
-          <div className="radio-group">
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="species"
-                checked={formData.species === 'dog'}
-                onChange={() => setFormData(prev => ({ ...prev, species: 'dog' }))}
-              />
-              <i className="fas fa-dog"></i> Cão
-            </label>
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="species"
-                checked={formData.species === 'cat'}
-                onChange={() => setFormData(prev => ({ ...prev, species: 'cat' }))}
-              />
-              <i className="fas fa-cat"></i> Gato
-            </label>
-          </div>
-        </label>
-      </div>
-
-      <div className="form-row">
-        <label>
-          Raça:
+        </div>
+        <div className="form-row">
+          <label>Raça:</label>
           <input
             type="text"
             value={formData.breed || ''}
             onChange={e => setFormData(prev => ({ ...prev, breed: e.target.value }))}
             required
           />
-        </label>
-      </div>
+        </div>
+        <div className="form-row">
+          <label>Tipo de pelo:</label>
 
-      <div className="form-row">
-        <label>
-          Porte:
-          <div className="radio-group">
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="size"
-                checked={formData.size === 'small'}
-                onChange={() => setFormData(prev => ({ ...prev, size: 'small' }))}
-              />
-              Peq.
-            </label>
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="size"
-                checked={formData.size === 'medium'}
-                onChange={() => setFormData(prev => ({ ...prev, size: 'medium' }))}
-              />
-              Med.
-            </label>
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="size"
-                checked={formData.size === 'large'}
-                onChange={() => setFormData(prev => ({ ...prev, size: 'large' }))}
-              />
-              Grande
-            </label>
-          </div>
-        </label>
-      </div>
-
-      <div className="form-row">
-        <label>
-          Tipo de pelo:
           <div className="radio-group">
             <label className="radio-label">
               <input
@@ -144,21 +79,78 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
               Grande
             </label>
           </div>
-        </label>
+        </div>
       </div>
 
-      <div className="form-row">
-        <label>
-          Data nasc.:
+
+      <div className='col-6'>
+        <div className="form-row">
+          <label className="species-label">Espécie:</label>
+          <div className="radio-group">
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="species"
+                checked={formData.species === 'dog'}
+                onChange={() => setFormData(prev => ({ ...prev, species: 'dog' }))}
+              />
+              <i className="fas fa-dog"></i> Cão
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="species"
+                checked={formData.species === 'cat'}
+                onChange={() => setFormData(prev => ({ ...prev, species: 'cat' }))}
+              />
+              <i className="fas fa-cat"></i> Gato
+            </label>
+          </div>
+        </div>
+        <div className="form-row">
+          <label>Porte:</label>
+          <div className="radio-group">
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="size"
+                checked={formData.size === 'small'}
+                onChange={() => setFormData(prev => ({ ...prev, size: 'small' }))}
+              />
+              Peq.
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="size"
+                checked={formData.size === 'medium'}
+                onChange={() => setFormData(prev => ({ ...prev, size: 'medium' }))}
+              />
+              Med.
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="size"
+                checked={formData.size === 'large'}
+                onChange={() => setFormData(prev => ({ ...prev, size: 'large' }))}
+              />
+              Grande
+            </label>
+          </div>
+        </div>
+
+        <div className="form-row">
+          <label>Data nasc.:</label>
           <input
             type="date"
             value={formData.birthDate ? formData.birthDate.toISOString().split('T')[0] : ''}
             onChange={e => setFormData(prev => ({ ...prev, birthDate: new Date(e.target.value) }))}
             required
           />
-        </label>
+        </div>
       </div>
-
+  
       <div className="form-row">
         <button type="button" className="photo-upload-button" onClick={() => document.getElementById('photo-upload')?.click()}>
           Escolher foto
