@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "homepage": "https://JulioCesar82.github.io/lab-hadoop-for-pet",
+  "homepage": "https://JulioCesar82.github.io/unicamp-petshop-startup",
   "dependencies": {
     "@types/node": "^16.18.0",
     "@types/react": "^18.2.0",
