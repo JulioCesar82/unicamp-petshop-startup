@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 export default defineConfig({
+  base: "/unicamp-petshop-startup/",
   plugins: [react()],
   resolve: {
     alias: {
