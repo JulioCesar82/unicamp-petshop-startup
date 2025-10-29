@@ -6,11 +6,17 @@ function formatTime(date: Date) {
 
 export class AvailabilityRepository implements IAvailabilityRepository {
   async getAvailableSlots(date: Date, durationInMinutes: number): Promise<string[]> {
+    // In a real application, this would check against a calendar API
+    console.log(`Getting available slots for ${date} with duration ${durationInMinutes} minutes.`);
+    let slots = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
+    return Promise.resolve(slots);
+
+
     const openingHour = 9;
     const closingHour = 18; // last possible end time
     const slotStep = 30; // minutes between possible start times
 
-    const slots: string[] = [];
+    slots = [];
     
     for (let hour = openingHour; hour < closingHour; hour++) {
       for (let minute = 0; minute < 60; minute += slotStep) {

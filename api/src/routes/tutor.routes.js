@@ -345,9 +345,62 @@ router.post('/notify-all', tutorController.notifyAllTutorsAsync);
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       pet:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             format: uuid
+ *                           name:
+ *                             type: string
+ *                           species:
+ *                             type: string
+ *                           breed:
+ *                             type: string
+ *                       recommendations:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             service_name:
+ *                               type: string
+ *                             service_description:
+ *                               type: string
+ *                             price:
+ *                               type: number
+ *                               format: float
+ *                             recommended_date:
+ *                               type: string
+ *                               format: date-time
+ *                             reason:
+ *                               type: string
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginatedResponse'
+ *               example:
+ *                 data:
+ *                   - pet:
+ *                       id: "1"
+ *                       name: "Rex"
+ *                       species: "Cachorro"
+ *                       breed: "Labrador"
+ *                     recommendations:
+ *                       - service_name: "Banho e Tosa"
+ *                         service_description: "Banho completo com tosa higiênica."
+ *                         price: 80.00
+ *                         recommended_date: "2025-11-10T10:00:00.000Z"
+ *                         reason: "Última visita há 30 dias."
+ *                 pagination:
+ *                   totalItems: 1
+ *                   totalPages: 1
+ *                   currentPage: 1
+ *                   pageSize: 10
  *       400:
  *         description: Bad request
  */
@@ -384,9 +437,72 @@ router.get('/:id/booking-recommendations', validatePagination, tutorController.g
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       pet:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             format: uuid
+ *                           name:
+ *                             type: string
+ *                           species:
+ *                             type: string
+ *                           breed:
+ *                             type: string
+ *                       recommendations:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             vaccineName:
+ *                               type: string
+ *                             recommendedDate:
+ *                               type: string
+ *                               format: date-time
+ *                             status:
+ *                               type: string
+ *                             reason:
+ *                               type: string
+ *                 pagination:
+ *                   $ref: '#/components/schemas/PaginatedResponse'
+ *               example:
+ *                 data:
+ *                   - pet:
+ *                       id: "1"
+ *                       name: "Rex"
+ *                       species: "Cachorro"
+ *                       breed: "Labrador"
+ *                     recommendations:
+ *                       - vaccineName: "Raiva (Antirrábica)"
+ *                         recommendedDate: "2025-11-15T00:00:00.000Z"
+ *                         status: "Recomendada"
+ *                         reason: "Reforço anual obrigatório."
+ *                       - vaccineName: "V10 (Polivalente)"
+ *                         recommendedDate: "2025-12-01T00:00:00.000Z"
+ *                         status: "Atrasada"
+ *                         reason: "O último reforço foi há mais de 12 meses."
+ *                   - pet:
+ *                       id: "2"
+ *                       name: "Mimi"
+ *                       species: "Gato"
+ *                       breed: "Siamês"
+ *                     recommendations:
+ *                       - vaccineName: "V4 (Quádrupla Felina)"
+ *                         recommendedDate: "2025-11-20T00:00:00.000Z"
+ *                         status: "Recomendada"
+ *                         reason: "Reforço anual."
+ *                 pagination:
+ *                   totalItems: 2
+ *                   totalPages: 1
+ *                   currentPage: 1
+ *                   pageSize: 10
  *       400:
  *         description: Bad request
  */
