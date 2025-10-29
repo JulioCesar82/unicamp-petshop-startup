@@ -1,13 +1,16 @@
 import React from 'react';
 import { BookingFlow } from '../BookingFlow';
+import { PetRecommendation } from '../../domain/entities';
 import './styles.css';
 
 interface BookingReminderProps {
+  recommendations: PetRecommendation[];
   onClose: () => void;
   onSchedule: () => void;
 }
 
 export const BookingReminder: React.FC<BookingReminderProps> = ({
+  recommendations,
   onClose,
   onSchedule
 }) => {
@@ -34,12 +37,24 @@ export const BookingReminder: React.FC<BookingReminderProps> = ({
         <div className="reminder-content">
           <div className="reminder-main-content">
             <div className="pet-icon">
-              <i className="fas fa-dog"></i>
+              <i className="fas fa-syringe"></i>
             </div>
             <div className="reminder-text">
-              <h3>Olá Marcelo, temos uma sugestão para você!</h3>
-              <p>O Max (Golden) está próximo da data ideal para um Banho e Tosa!</p>
-              <p>Sugerimos agendar entre 13/04 e 27/05.</p>
+              <h3>Olá! Temos recomendações de vacinas para seus pets:</h3>
+              {recommendations.map((petRec, index) => (
+                <div key={index} className="pet-recommendation">
+                  <h4>{petRec.pet.name} ({petRec.pet.breed})</h4>
+                  {petRec.recommendations.map((vaccine, vIndex) => (
+                    <p key={vIndex}>
+                      <strong>{vaccine.vaccineName}</strong> - {vaccine.status}
+                      <br />
+                      <small>Data recomendada: {new Date(vaccine.recommendedDate).toLocaleDateString('pt-BR')}</small>
+                      <br />
+                      <small>{vaccine.reason}</small>
+                    </p>
+                  ))}
+                </div>
+              ))}
             </div>
           </div>
           <div className="reminder-actions">

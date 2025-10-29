@@ -31,3 +31,20 @@ export interface Booking {
   date: Date;
   time: string;
 }
+
+export interface VaccineRecommendation {
+  vaccineName: string;
+  recommendedDate: string;
+  status: string;
+  reason: string;
+}
+
+export interface PetRecommendation {
+  pet: {
+    id: string;
+    name: string;
+    species: string;
+    breed: string;
+  };
+  recommendations: VaccineRecommendation[];
+}

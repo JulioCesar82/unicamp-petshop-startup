@@ -2,18 +2,31 @@ import React from "react";
 import { Footer } from "../../components/Footer";
 import { Header } from "../../components/Header";
 import { BookingReminder } from "../../components/BookingReminder";
+import { BookingReminderRepository } from "../../data/BookingReminderRepository";
+import { GetBookingRecommendations } from "../../application/GetBookingRecommendations";
+import { PetRecommendation } from "../../domain/entities";
 import "./styles.css";
+
+const bookingReminderRepository = new BookingReminderRepository();
+const getBookingRecommendationsUseCase = new GetBookingRecommendations(bookingReminderRepository);
 
 export const HomePage = () => {
   const [showReminder, setShowReminder] = React.useState(false);
+  const [recommendations, setRecommendations] = React.useState<PetRecommendation[]>([]);
 
   React.useEffect(() => {
-    // Mostrar o modal após 5 segundos
-    const timer = setTimeout(() => {
-      setShowReminder(true);
-    }, 5000);
-
-    return () => clearTimeout(timer);
+    // Fetch booking recommendations for tutor ID 1
+    getBookingRecommendationsUseCase.execute('1')
+      .then((data) => {
+        setRecommendations(data);
+        // Only show the reminder if there are recommendations
+        if (data.length > 0) {
+          const timer = setTimeout(() => {
+            setShowReminder(true);
+          }, 5000);
+          return () => clearTimeout(timer);
+        }
+      });
   }, []);
 
   const offers = [
@@ -33,7 +46,7 @@ export const HomePage = () => {
     }
   ];
 
-  const recommendations = [
+  const productRecommendations = [
     { id: 1, image: 'produto-01.png', name: "Ração Premium", price: 89.90 },
     { id: 2, image: 'produto-02.png', name: "Shampoo Pet", price: 29.90 },
     { id: 3, image: 'produto-03.png', name: "Brinquedo Interativo", price: 45.90 },
@@ -70,7 +83,7 @@ export const HomePage = () => {
         <section className="recommendations">
           <h2>Produtos recomendados</h2>
           <div className="products-grid">
-            {recommendations.map(product => (
+            {productRecommendations.map(product => (
               <div key={product.id} className="product-card">
                 <img src={product.image} alt={product.name} />
                 <div className="product-info">
@@ -86,8 +99,9 @@ export const HomePage = () => {
       </main>
       <Footer />
       
-      {showReminder && (
+      {showReminder && recommendations.length > 0 && (
         <BookingReminder
+          recommendations={recommendations}
           onClose={() => setShowReminder(false)}
           onSchedule={() => {
             // Não fechamos o modal aqui para permitir que o fluxo de agendamento seja mostrado
