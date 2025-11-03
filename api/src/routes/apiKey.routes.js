@@ -26,9 +26,20 @@ router.use(authenticateApiKeyAsync);
  *           type: integer
  *         api_key:
  *           type: string
+ *         dcreated:
+ *           type: string
+ *           format: date-time
+ *         dlastupdate:
+ *           type: string
+ *           format: date-time
+ *         nenabled:
+ *           type: boolean
  *       example:
  *         organization_id: 1
- *         api_key: "a1b2c3d4e5f6..."
+ *         api_key: "apikey-1234567890"
+ *         dcreated: "2025-11-03T20:10:22.337Z"
+ *         dlastupdate: "2025-11-03T20:10:22.337Z"
+ *         nenabled: true
  */
 
 /**
@@ -44,6 +55,12 @@ router.use(authenticateApiKeyAsync);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ApiKey'
+ *             example:
+ *               organization_id: 1
+ *               api_key: "82607b06600fda41925c51aafdbd1a2cb7952e3a3c4650f0364bf25810ed327c"
+ *               dcreated: "2025-11-03T21:07:42.321Z"
+ *               dlastupdate: "2025-11-03T21:07:42.321Z"
+ *               nenabled: true
  *       400:
  *         description: Erro de validação
  *         content:
@@ -103,6 +120,18 @@ router.post('/', apiKeyController.createAsync);
  *                     data:
  *                       items:
  *                         $ref: '#/components/schemas/ApiKey'
+ *             example:
+ *               data:
+ *                 - organization_id: 1
+ *                   api_key: "apikey-1234567890"
+ *                   dcreated: "2025-11-03T20:10:22.337Z"
+ *                   dlastupdate: "2025-11-03T20:10:22.337Z"
+ *                   nenabled: true
+ *               pagination:
+ *                 totalItems: 1
+ *                 totalPages: 1
+ *                 currentPage: "1"
+ *                 pageSize: "10"
  *       400:
  *         description: Erro de validação
  *         content:

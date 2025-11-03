@@ -27,7 +27,7 @@ router.use(authenticateApiKeyAsync);
  *         - email
  *         - phone
  *       properties:
- *         id:
+ *         tutor_id:
  *           type: integer
  *           description: The auto-generated id of the tutor.
  *         name:
@@ -39,10 +39,25 @@ router.use(authenticateApiKeyAsync);
  *         phone:
  *           type: string
  *           description: The phone number of the tutor.
+ *         organization_id:
+ *           type: integer
+ *         dcreated:
+ *           type: string
+ *           format: date-time
+ *         dlastupdate:
+ *           type: string
+ *           format: date-time
+ *         nenabled:
+ *           type: boolean
  *       example:
- *         name: "João da Silva"
- *         email: "joao.silva@example.com"
- *         phone: "11999999999"
+ *         tutor_id: 1
+ *         name: "Ana Carolina"
+ *         email: "ana.carolina@email.com"
+ *         phone: "55 91234-5678"
+ *         organization_id: 1
+ *         dcreated: "2025-11-03T20:10:22.337Z"
+ *         dlastupdate: "2025-11-03T20:10:22.337Z"
+ *         nenabled: true
  *
  */
 
@@ -125,6 +140,15 @@ router.get('/', validatePagination, tutorController.getAllAsync);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Tutor'
+ *             example:
+ *               tutor_id: 1
+ *               name: "Ana Carolina"
+ *               email: "ana.carolina@email.com"
+ *               phone: "55 91234-5678"
+ *               organization_id: 1
+ *               dcreated: "2025-11-03T20:10:22.337Z"
+ *               dlastupdate: "2025-11-03T20:10:22.337Z"
+ *               nenabled: true
  *       404:
  *         description: The tutor was not found
  */
@@ -352,55 +376,74 @@ router.post('/notify-all', tutorController.notifyAllTutorsAsync);
  *                   items:
  *                     type: object
  *                     properties:
- *                       pet:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: string
- *                             format: uuid
- *                           name:
- *                             type: string
- *                           species:
- *                             type: string
- *                           breed:
- *                             type: string
- *                       recommendations:
- *                         type: array
- *                         items:
- *                           type: object
- *                           properties:
- *                             service_name:
- *                               type: string
- *                             service_description:
- *                               type: string
- *                             price:
- *                               type: number
- *                               format: float
- *                             recommended_date:
- *                               type: string
- *                               format: date-time
- *                             reason:
- *                               type: string
+ *                       booking_recommendation_id:
+ *                         type: integer
+ *                       pet_id:
+ *                         type: integer
+ *                       suggested_date:
+ *                         type: string
+ *                         format: date-time
+ *                       average_frequency_days:
+ *                         type: integer
+ *                       ignore_recommendation:
+ *                         type: boolean
+ *                       dcreated:
+ *                         type: string
+ *                         format: date-time
+ *                       dlastupdate:
+ *                         type: string
+ *                         format: date-time
+ *                       nenabled:
+ *                         type: boolean
+ *                       tutor_id:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                       image_path:
+ *                         type: string
+ *                         nullable: true
+ *                       birth_date:
+ *                         type: string
+ *                         format: date-time
+ *                       species:
+ *                         type: string
+ *                       animal_type:
+ *                         type: string
+ *                       fur_type:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                       phone:
+ *                         type: string
+ *                       organization_id:
+ *                         type: integer
  *                 pagination:
  *                   $ref: '#/components/schemas/PaginatedResponse'
- *               example:
- *                 data:
- *                   - pet:
- *                       id: "1"
- *                       name: "Rex"
- *                       species: "Cachorro"
- *                       breed: "Labrador"
- *                     recommendations:
- *                       - service_name: "Banho e Tosa"
- *                         service_description: "Banho completo com tosa higiênica."
- *                         price: 80.00
- *                         recommended_date: "2025-11-10T10:00:00.000Z"
- *                         reason: "Última visita há 30 dias."
- *                 pagination:
- *                   totalItems: 1
- *                   totalPages: 1
- *                   currentPage: 1
- *                   pageSize: 10
+ *             example:
+ *               data:
+ *                 - booking_recommendation_id: 1
+ *                   pet_id: 1
+ *                   suggested_date: "2025-11-09T03:00:00.000Z"
+ *                   average_frequency_days: 5
+ *                   ignore_recommendation: false
+ *                   dcreated: "2025-11-03T20:10:22.337Z"
+ *                   dlastupdate: "2025-11-03T20:10:22.337Z"
+ *                   nenabled: true
+ *                   tutor_id: 1
+ *                   name: "Ana Carolina"
+ *                   image_path: null
+ *                   birth_date: "2025-11-03T03:00:00.000Z"
+ *                   species: "Cão"
+ *                   animal_type: "Golden Retriever"
+ *                   fur_type: "Longo"
+ *                   email: "ana.carolina@email.com"
+ *                   phone: "55 91234-5678"
+ *                   organization_id: 1
+ *               pagination:
+ *                 totalItems: 1
+ *                 totalPages: 1
+ *                 currentPage: "1"
+ *                 pageSize: "10"
  *       400:
  *         description: Bad request
  */
@@ -444,65 +487,83 @@ router.get('/:id/booking-recommendations', validatePagination, tutorController.g
  *                   items:
  *                     type: object
  *                     properties:
- *                       pet:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: string
- *                             format: uuid
- *                           name:
- *                             type: string
- *                           species:
- *                             type: string
- *                           breed:
- *                             type: string
- *                       recommendations:
- *                         type: array
- *                         items:
- *                           type: object
- *                           properties:
- *                             vaccineName:
- *                               type: string
- *                             recommendedDate:
- *                               type: string
- *                               format: date-time
- *                             status:
- *                               type: string
- *                             reason:
- *                               type: string
+ *                       vaccine_recommendation_id:
+ *                         type: integer
+ *                       pet_id:
+ *                         type: integer
+ *                       vaccine_reference_id:
+ *                         type: integer
+ *                       vaccine_name:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       mandatory:
+ *                         type: boolean
+ *                       suggested_date:
+ *                         type: string
+ *                         format: date-time
+ *                       ignore_recommendation:
+ *                         type: boolean
+ *                       dcreated:
+ *                         type: string
+ *                         format: date-time
+ *                       dlastupdate:
+ *                         type: string
+ *                         format: date-time
+ *                       nenabled:
+ *                         type: boolean
+ *                       tutor_id:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                       image_path:
+ *                         type: string
+ *                         nullable: true
+ *                       birth_date:
+ *                         type: string
+ *                         format: date-time
+ *                       species:
+ *                         type: string
+ *                       animal_type:
+ *                         type: string
+ *                       fur_type:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                       phone:
+ *                         type: string
+ *                       organization_id:
+ *                         type: integer
  *                 pagination:
  *                   $ref: '#/components/schemas/PaginatedResponse'
- *               example:
- *                 data:
- *                   - pet:
- *                       id: "1"
- *                       name: "Rex"
- *                       species: "Cachorro"
- *                       breed: "Labrador"
- *                     recommendations:
- *                       - vaccineName: "Raiva (Antirrábica)"
- *                         recommendedDate: "2025-11-15T00:00:00.000Z"
- *                         status: "Recomendada"
- *                         reason: "Reforço anual obrigatório."
- *                       - vaccineName: "V10 (Polivalente)"
- *                         recommendedDate: "2025-12-01T00:00:00.000Z"
- *                         status: "Atrasada"
- *                         reason: "O último reforço foi há mais de 12 meses."
- *                   - pet:
- *                       id: "2"
- *                       name: "Mimi"
- *                       species: "Gato"
- *                       breed: "Siamês"
- *                     recommendations:
- *                       - vaccineName: "V4 (Quádrupla Felina)"
- *                         recommendedDate: "2025-11-20T00:00:00.000Z"
- *                         status: "Recomendada"
- *                         reason: "Reforço anual."
- *                 pagination:
- *                   totalItems: 2
- *                   totalPages: 1
- *                   currentPage: 1
- *                   pageSize: 10
+ *             example:
+ *               data:
+ *                 - vaccine_recommendation_id: 1
+ *                   pet_id: 1
+ *                   vaccine_reference_id: 1
+ *                   vaccine_name: "Aplicação de Microchip"
+ *                   description: "Registro de aplicação de microchip de identificação."
+ *                   mandatory: false
+ *                   suggested_date: "2026-01-03T00:00:00.000Z"
+ *                   ignore_recommendation: false
+ *                   dcreated: "2025-11-03T20:10:22.337Z"
+ *                   dlastupdate: "2025-11-03T20:10:22.337Z"
+ *                   nenabled: true
+ *                   tutor_id: 1
+ *                   name: "Ana Carolina"
+ *                   image_path: null
+ *                   birth_date: "2025-11-03T00:00:00.000Z"
+ *                   species: "Cão"
+ *                   animal_type: "Golden Retriever"
+ *                   fur_type: "Longo"
+ *                   email: "ana.carolina@email.com"
+ *                   phone: "55 91234-5678"
+ *                   organization_id: 1
+ *               pagination:
+ *                 totalItems: 5
+ *                 totalPages: 1
+ *                 currentPage: "1"
+ *                 pageSize: "10"
  *       400:
  *         description: Bad request
  */

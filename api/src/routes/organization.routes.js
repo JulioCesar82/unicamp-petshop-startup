@@ -39,11 +39,30 @@ const { authenticateApiKeyAsync } = require('../middleware/auth');
  *         identification_code:
  *           type: string
  *           description: The identification code of the organization.
+ *         links:
+ *           type: array
+ *           items:
+ *             type: string
+ *         dcreated:
+ *           type: string
+ *           format: date-time
+ *         dlastupdate:
+ *           type: string
+ *           format: date-time
+ *         nenabled:
+ *           type: boolean
  *       example:
- *         name: "PetShop Feliz"
- *         social_name: "PetShop Feliz LTDA"
- *         description: "O melhor para o seu pet."
+ *         organization_id: 1
+ *         name: "PetCare"
+ *         social_name: "PetCare Serviços Veterinários Ltda"
+ *         description: "Clínica veterinária especializada em cuidados para pets."
  *         identification_code: "12345678000199"
+ *         links:
+ *           - "http://localhost:3000"
+ *           - "https://juliocesar82.github.io/unicamp-petshop-startup"
+ *         dcreated: "2025-11-03T20:10:22.337Z"
+ *         dlastupdate: "2025-11-03T20:10:22.337Z"
+ *         nenabled: true
  */
 
 
@@ -130,6 +149,18 @@ router.post('/', createOrganizationValidator, organizationController.createAsync
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Organization'
+ *             example:
+ *               organization_id: 1
+ *               name: "PetCare"
+ *               social_name: "PetCare Serviços Veterinários Ltda"
+ *               description: "Clínica veterinária especializada em cuidados para pets."
+ *               identification_code: "12345678000199"
+ *               links:
+ *                 - "http://localhost:3000"
+ *                 - "https://juliocesar82.github.io/unicamp-petshop-startup"
+ *               dcreated: "2025-11-03T20:10:22.337Z"
+ *               dlastupdate: "2025-11-03T20:10:22.337Z"
+ *               nenabled: true
  *       404:
  *         description: The organization was not found
  */
