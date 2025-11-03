@@ -11,6 +11,11 @@ app.use(express.urlencoded({ extended: true }));
 const { swaggerUi, specs } = require('./config/swaggerConfig');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(specs);
+});
+
 app.get('/', (req, res) => {
   res.redirect('/api-docs');
 });

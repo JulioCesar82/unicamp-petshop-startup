@@ -144,6 +144,13 @@ router.post('/createWithList', validatePetList, petController.createWithListAsyn
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/Pet'
+ *           example:
+ *             name: "Bolinha"
+ *             species: "Cão"
+ *             animal_type: "Pug"
+ *             fur_type: "Curto"
+ *             birth_date: "2022-01-15"
+ *             tutor_id: 1
  *     responses:
  *       201:
  *         description: The pet was successfully created.
