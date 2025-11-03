@@ -3,8 +3,6 @@ const { pool } = require('../database');
 
 const DDL_SCRIPT = `
 -- =========== CRIAÇÃO DA FUNÇÃO DE TRIGGER ===========
--- (Deve ser executada antes dos CREATE TABLEs que a utilizam)
-
 CREATE OR REPLACE FUNCTION update_last_modified_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -82,7 +80,7 @@ CREATE TRIGGER update_organization_apikey_dlastupdate BEFORE UPDATE ON organizat
 CREATE TABLE IF NOT EXISTS tutor (
     tutor_id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL CONSTRAINT uq_tutor_email UNIQUE,
     phone VARCHAR(20) UNIQUE,
 
     organization_id INTEGER REFERENCES organization(organization_id),
@@ -108,6 +106,9 @@ CREATE TABLE IF NOT EXISTS pet (
     animal_type VARCHAR(50),
     fur_type VARCHAR(50),
     
+    -- Garante uma recomendação única por tutor_id/name
+    CONSTRAINT uq_pet_tutor_name UNIQUE (tutor_id, name),
+
     -- Colunas de Auditoria
     dcreated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     dlastupdate TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -121,7 +122,7 @@ CREATE TRIGGER update_pet_dlastupdate BEFORE UPDATE ON pet FOR EACH ROW EXECUTE 
 
 CREATE TABLE IF NOT EXISTS product (
     product_id SERIAL PRIMARY KEY,
-    product_name VARCHAR(255) NOT NULL,
+    product_name VARCHAR(255) NOT NULL CONSTRAINT uq_product_name UNIQUE, -- NOMEANDO RESTRIÇÃO
     category VARCHAR(100),
 
     organization_id INTEGER REFERENCES organization(organization_id),
@@ -156,7 +157,7 @@ CREATE TRIGGER update_purchase_dlastupdate BEFORE UPDATE ON purchase FOR EACH RO
 
 CREATE TABLE IF NOT EXISTS vaccine_reference (
     vaccine_reference_id SERIAL PRIMARY KEY,
-    vaccine_name VARCHAR(150) NOT NULL UNIQUE,
+    vaccine_name VARCHAR(150) NOT NULL CONSTRAINT uq_vaccine_name UNIQUE,
     description TEXT NOT NULL,
     target_species enum_vaccine_target_species NOT NULL,
 
@@ -179,7 +180,7 @@ CREATE TABLE IF NOT EXISTS vaccine_equivalence (
     PRIMARY KEY (vaccine_id, equivalent_vaccine_id),
 
     -- Garante que a relação não seja duplicada (ex: A->B e B->A)
-    CHECK (vaccine_id < equivalent_vaccine_id),
+    CONSTRAINT chk_vaccine_order CHECK (vaccine_id < equivalent_vaccine_id),
     
     -- Colunas de Auditoria
     dcreated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -210,7 +211,7 @@ CREATE TABLE IF NOT EXISTS vaccine_recommendation (
     vaccine_recommendation_id SERIAL PRIMARY KEY,
     pet_id INTEGER NOT NULL REFERENCES pet(pet_id),
 
-    --vaccine_reference_id INTEGER NOT NULL REFERENCES vaccine_reference(vaccine_reference_id),
+    vaccine_reference_id INTEGER NOT NULL REFERENCES vaccine_reference(vaccine_reference_id),
     vaccine_name VARCHAR(255),
     description TEXT,
     mandatory BOOLEAN,
@@ -219,8 +220,7 @@ CREATE TABLE IF NOT EXISTS vaccine_recommendation (
     ignore_recommendation BOOLEAN DEFAULT FALSE,
 
     -- Garante uma recomendação única por pet/vacina/data
-    --UNIQUE (pet_id, vaccine_reference_id, suggested_date)
-    UNIQUE (pet_id, suggested_date),
+    CONSTRAINT uq_recommendation_key UNIQUE (pet_id, vaccine_reference_id, suggested_date),
     
     -- Colunas de Auditoria
     dcreated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),

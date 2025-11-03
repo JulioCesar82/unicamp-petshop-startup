@@ -4,49 +4,50 @@ const { pool } = require('../database');
 const DML_SCRIPT = `
 insert into organization_invite (invite_code, expiration_date) values
 ('super-secret-invite-code', NOW() + INTERVAL '30 days')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (invite_code) DO NOTHING;
 
 insert into organization (name, social_name, description, identification_code, links) values
 ('PetCare', 'PetCare Serviços Veterinários Ltda', 'Clínica veterinária especializada em cuidados para pets.', '12345678000199', ARRAY['http://localhost:3000', 'https://juliocesar82.github.io/unicamp-petshop-startup'])
-ON CONFLICT DO NOTHING;
+ON CONFLICT (name) DO NOTHING;
 
 insert into organization_apikey (organization_id, api_key) values
 ((SELECT organization_id FROM organization WHERE name='PetCare' limit 1), 'apikey-1234567890')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (organization_id, api_key) DO NOTHING;
 
 INSERT INTO tutor (name, email, phone, organization_id) VALUES
 ('Ana Carolina', 'ana.carolina@email.com', '55 91234-5678', (SELECT organization_id FROM organization WHERE name='PetCare' limit 1)),
 ('Bruno Martins', 'bruno.martins@email.com', '55 99876-5432', (SELECT organization_id FROM organization WHERE name='PetCare' limit 1))
-ON CONFLICT DO NOTHING;
+ON CONFLICT (email) DO NOTHING;
+
 
 INSERT INTO pet (tutor_id, name, species, animal_type, fur_type, birth_date) VALUES
 ((SELECT tutor_id FROM tutor WHERE name='Ana Carolina' limit 1), 'Bidu', 'Cão', 'Golden Retriever', 'Longo', NOW()),
 ((SELECT tutor_id FROM tutor WHERE name='Ana Carolina' limit 1), 'Luna', 'Gato', 'Siamês', 'Curto', NOW() - INTERVAL '1 year'),
 ((SELECT tutor_id FROM tutor WHERE name='Bruno Martins' limit 1), 'Thor', 'Cão', 'Shih Tzu', 'Longo', NOW() - INTERVAL '4 months')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (tutor_id, name) DO NOTHING; 
 
+-- booking: Não possui restrição de unicidade
 INSERT INTO booking (pet_id, service_type, booking_date, status) VALUES
 ((SELECT pet_id FROM pet WHERE name='Bidu' limit 1), 'Banho e Tosa Completa', NOW() - INTERVAL '1 month', 'Realizado'),
 ((SELECT pet_id FROM pet WHERE name='Bidu' limit 1), 'Banho e Tosa Completa', NOW() - INTERVAL '2 month', 'Realizado'),
 ((SELECT pet_id FROM pet WHERE name='Bidu' limit 1), 'Banho e Tosa Completa', NOW() - INTERVAL '3 month', 'Realizado'),
-((SELECT pet_id FROM pet WHERE name='Thor' limit 1), 'Banho', NOW() - INTERVAL '1 year', 'Realizado')
-ON CONFLICT DO NOTHING;
+((SELECT pet_id FROM pet WHERE name='Thor' limit 1), 'Banho', NOW() - INTERVAL '1 year', 'Realizado');
 
 INSERT INTO product (product_name, category) VALUES
 ('Ração para Cães de Pelo Longo', 'Alimentação'),
 ('Shampoo Hipoalergênico para Cães', 'Higiene')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (product_name) DO NOTHING;
 
+-- purchase: Não possui restrição de unicidade
 INSERT INTO purchase (tutor_id, product_id, purchase_date, quantity, price) VALUES
 ((SELECT tutor_id FROM tutor WHERE name='Ana Carolina' limit 1), (SELECT product_id FROM product WHERE product_name='Ração para Cães de Pelo Longo' limit 1), NOW() - INTERVAL '3 month', 1, 75.50),
 ((SELECT tutor_id FROM tutor WHERE name='Ana Carolina' limit 1), (SELECT product_id FROM product WHERE product_name='Shampoo Hipoalergênico para Cães' limit 1), NOW() - INTERVAL '3 month', 1, 30.00),
-((SELECT tutor_id FROM tutor WHERE name='Bruno Martins' limit 1), (SELECT product_id FROM product WHERE product_name='Ração para Cães de Pelo Longo' limit 1), NOW() - INTERVAL '5 month', 1, 50.20)
-ON CONFLICT DO NOTHING;
+((SELECT tutor_id FROM tutor WHERE name='Bruno Martins' limit 1), (SELECT product_id FROM product WHERE product_name='Ração para Cães de Pelo Longo' limit 1), NOW() - INTERVAL '5 month', 1, 50.20);
 
 INSERT INTO vaccine_reference (vaccine_name, target_species, mandatory, description, first_dose_age_months, booster_interval_months) VALUES 
 -- Aplicação Única 
 ('Aplicação de Microchip', 'Ambos', FALSE, 'Registro de aplicação de microchip de identificação.', 2, NULL),
- 
+
 -- Vacinas Não Essenciais para Ambos 
 ( 'Complexo Tosse dos Canis (Bordetella, Mucosa)', 'Ambos', FALSE, 'Vacinas vivas (intranasal ou oral) para proteção contra Bordetella bronchiseptica e/ou Parainfluenza.', 2, 12),
 ( 'Complexo Tosse dos Canis (Bordetella, Parenteral)', 'Ambos', FALSE, 'Vacina inativada (injetável) contra Bordetella bronchiseptica. Requer duas doses iniciais.', 2, 12),
@@ -74,29 +75,47 @@ INSERT INTO vaccine_reference (vaccine_name, target_species, mandatory, descript
 
 -- Vacinas Não Essenciais para Gatos 
 ('Bordetella Bronchiseptica Felina (Intranasal)', 'Gato', FALSE, 'Não utilizada rotineiramente. Considerar para gatos em colônias muito grandes.', 1, 12)
-ON CONFLICT DO NOTHING;
+ON CONFLICT (vaccine_name) DO NOTHING;
 
--- TODO: insert na tabela vaccine_equivalence
-INSERT INTO vaccine_equivalence (vaccine_id, equivalent_vaccine_id) VALUES 
-  ((SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V10 Canina (1 Dose) - Polivalente Canina Essencial' limit 1), 
-  (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V8 Canina (1 Dose) - Polivalente Canina Essencial' limit 1)),
-
-  ((SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V10 Canina (2 Dose) - Polivalente Canina Essencial' limit 1), 
-  (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V8 Canina (2 Dose) - Polivalente Canina Essencial' limit 1)),
-
-  ((SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V10 Canina (Dose Regular) - Polivalente Canina Essencial' limit 1), 
-  (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V8 Canina (Dose Regular) - Polivalente Canina Essencial' limit 1)),
-
-  ((SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V4 Felina (1 Dose) - Polivalente Essencial' limit 1), 
-  (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V5 Felina (1 Dose) - Polivalente Essencial' limit 1)),
-
-  ((SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V4 Felina (2 Dose) - Polivalente Essencial' limit 1), 
-  (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V5 Felina (2 Dose) - Polivalente Essencial' limit 1)),
-
-  ((SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V4 Felina (Dose Regular) - Polivalente Essencial' limit 1), 
-  (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V5 Felina (Dose Regular) - Polivalente Essencial' limit 1))
-
-ON CONFLICT DO NOTHING;
+-- ATENÇÃO: Corrigido o DML para usar LEAST e GREATEST e respeitar o CHECK (vaccine_id < equivalent_vaccine_id).
+-- Reestruturado o INSERT para usar um CTE (Common Table Expression) 
+-- para garantir que o PostgreSQL consiga mapear corretamente as colunas para o ON CONFLICT.
+WITH data_to_insert AS (
+    SELECT 
+        LEAST(id1, id2) AS vaccine_id, 
+        GREATEST(id1, id2) AS equivalent_vaccine_id
+    FROM (
+        VALUES
+        (
+            (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V10 Canina (1 Dose) - Polivalente Canina Essencial' limit 1), 
+            (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V8 Canina (1 Dose) - Polivalente Canina Essencial' limit 1)
+        ),
+        (
+            (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V10 Canina (2 Dose) - Polivalente Canina Essencial' limit 1), 
+            (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V8 Canina (2 Dose) - Polivalente Canina Essencial' limit 1)
+        ),
+        (
+            (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V10 Canina (Dose Regular) - Polivalente Canina Essencial' limit 1), 
+            (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V8 Canina (Dose Regular) - Polivalente Canina Essencial' limit 1)
+        ),
+        (
+            (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V4 Felina (1 Dose) - Polivalente Essencial' limit 1), 
+            (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V5 Felina (1 Dose) - Polivalente Essencial' limit 1)
+        ),
+        (
+            (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V4 Felina (2 Dose) - Polivalente Essencial' limit 1), 
+            (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V5 Felina (2 Dose) - Polivalente Essencial' limit 1)
+        ),
+        (
+            (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V4 Felina (Dose Regular) - Polivalente Essencial' limit 1), 
+            (SELECT vaccine_reference_id FROM vaccine_reference WHERE vaccine_name = 'V5 Felina (Dose Regular) - Polivalente Essencial' limit 1)
+        )
+    ) AS t(id1, id2)
+)
+INSERT INTO vaccine_equivalence (vaccine_id, equivalent_vaccine_id)
+SELECT vaccine_id, equivalent_vaccine_id
+FROM data_to_insert
+ON CONFLICT (vaccine_id, equivalent_vaccine_id) DO NOTHING;
 `;
 
 const insertDMLAsync = async () => {

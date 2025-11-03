@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
 
 import sys
+import logging
+
+# Configuração básica de log para depuração
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - MAPPER - %(levelname)s - %(message)s')
 
 for line in sys.stdin:
     line = line.strip()
-    # Input from Sqoop (example):
-    # pet_id, species, birth_date, vaccine_reference_id, vaccine_name, description, target_species, first_dose_age_months, booster_interval_months, mandatory, application_date
-    fields = line.split(',')
-    if len(fields) >= 10:
-        pet_id = fields[0].strip()
-        species = fields[1].strip()
-        birth_date = fields[2].strip()
-        vaccine_reference_id = fields[3].strip()
-        vaccine_name = fields[4].strip()
-        description = fields[5].strip()
-        target_species = fields[6].strip()
-        first_dose_age_months = fields[7].strip()
-        booster_interval_months = fields[8].strip()
-        mandatory = fields[9].strip()
-        application_date = fields[10].strip() if len(fields) > 10 and fields[10].strip() and fields[10].strip().lower() != 'null' else "NULL"
+    if not line:
+        continue
 
-        # Emit pet_id as key and combined vaccine data as value
-        print(f"{pet_id}\t{species},{birth_date},{vaccine_reference_id},{vaccine_name},{description},{target_species},{first_dose_age_months},{booster_interval_months},{mandatory},{application_date}")
+    fields = line.split(',')
+    
+    # A consulta SQL tem 11 campos. A verificação deve ser >= 11.
+    # O último campo (application_date) pode ser 'null'.
+    if len(fields) >= 11:
+        pet_id = fields[0].strip()
+        # Emite o pet_id como chave e a linha inteira como valor,
+        # espelhando o comportamento do mapper Java.
+        print(f"{pet_id}\t{line}")
+    else:
+        logging.warning(f"Linha mal formatada ignorada (campos insuficientes: {len(fields)}): '{line}'")

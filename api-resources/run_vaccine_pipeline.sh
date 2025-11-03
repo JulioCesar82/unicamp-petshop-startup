@@ -29,7 +29,7 @@ sqoop import \
     --connect jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME \
     --username $DB_USER \
     --password $DB_PASSWORD \
-    --query "SELECT p.pet_id, p.species, p.birth_date, vr.vaccine_reference_id, vr.vaccine_name, vr.description, vr.target_species, vr.first_dose_age_months, vr.booster_interval_months, vr.mandatory, vc.application_date FROM pet p CROSS JOIN vaccine_reference vr LEFT JOIN vaccination_record vc ON p.pet_id = vc.pet_id AND vr.vaccine_reference_id = vc.vaccine_reference_id WHERE p.ignore_recommendation = false AND p.nenabled = TRUE AND vr.nenabled = TRUE AND \$CONDITIONS" \
+    --query "SELECT p.pet_id, p.species, p.birth_date, vr.vaccine_reference_id, vr.vaccine_name, vr.description, vr.target_species, vr.first_dose_age_months, vr.booster_interval_months, vr.mandatory, vc.application_date FROM pet p INNER JOIN vaccine_reference vr ON p.species::text = vr.target_species::text OR vr.target_species::text = 'Ambos' LEFT JOIN vaccination_record vc ON p.pet_id = vc.pet_id AND vr.vaccine_reference_id = vc.vaccine_reference_id WHERE p.ignore_recommendation = false AND p.nenabled = TRUE AND vr.nenabled = TRUE AND \$CONDITIONS" \
     --target-dir $INPUT_DIR \
     --m 1 \
     --split-by p.pet_id
@@ -64,8 +64,9 @@ hdfs dfs -cat $OUTPUT_DIR/part-r-00000 | while IFS=$'\t' read -r pet_id values; 
   description=$(echo $values | cut -d',' -f2)
   mandatory=$(echo $values | cut -d',' -f3)
   sug_date=$(echo $values | cut -d',' -f4)
+  vaccine_reference_id=$(echo $values | cut -d',' -f5)
   
-  psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c "INSERT INTO vaccine_recommendation (pet_id, vaccine_name, description, mandatory, suggested_date) VALUES ($pet_id, '$vaccine_name', '$description', $mandatory, '$sug_date');"
+  psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c "INSERT INTO vaccine_recommendation (pet_id, vaccine_name, description, mandatory, suggested_date, vaccine_reference_id) VALUES ($pet_id, '$vaccine_name', '$description', $mandatory, '$sug_date', $vaccine_reference_id);"
 done
 
 echo "Pipeline finished successfully!"
