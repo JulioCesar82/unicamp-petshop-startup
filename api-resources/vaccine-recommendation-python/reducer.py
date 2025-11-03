@@ -112,6 +112,7 @@ def process_pet_data(pet_id, data):
         logger.warning(f"No birth date found for pet_id {pet_id}. Skipping processing.")
         return
 
+    logger.debug(f"Before parsing birth_date: birth_date_str='{birth_date_str}', item='{item}', fields={fields}")
     age_in_months = calculate_age_in_months(birth_date_str)
     birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d")
     logger.debug(f"Pet {pet_id} species: {species}, birth date: {birth_date_str}, age: {age_in_months} months.")
