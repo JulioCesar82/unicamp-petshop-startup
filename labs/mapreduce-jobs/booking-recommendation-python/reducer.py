@@ -1,191 +1,165 @@
 #!/usr/bin/env python3
 
 import sys
+import logging
+import os
 from datetime import datetime, timedelta
 
+# --- CONFIGURAÇÃO DO LOG ---
+# Define o nome do arquivo de log, incluindo um subdiretório "logs"
+# O script criará este diretório se ele não existir.
+LOG_FILE = '/tmp/logs/pet_frequency_reducer.log'
+
+# Cria o diretório (e todos os pais necessários) se ele não existir.
+# O bloco try/except garante que o script não falhe se a criação 
+# do diretório falhar (ex: problemas de permissão).
+try:
+    log_dir = os.path.dirname(LOG_FILE)
+    # Verifica se há um caminho de diretório (não apenas o nome do arquivo)
+    if log_dir:
+        os.makedirs(log_dir, exist_ok=True)
+except Exception as e:
+    # Se a criação falhar, reporta o erro para o stderr e tenta
+    # mudar o LOG_FILE para o diretório atual para evitar falha total.
+    sys.stderr.write(f"ERROR: Falha ao criar o diretório de log ({log_dir}). Verifique as permissões. Erro: {e}\n")
+    LOG_FILE = os.path.basename(LOG_FILE) # Retorna para o nome base no diretório atual
+    
+# Configura o logger
+logging.basicConfig(
+    level=logging.DEBUG, # Captura todos os níveis (DEBUG e acima)
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    filename=LOG_FILE, # Redireciona o output para o arquivo
+    filemode='a' # Anexa ao arquivo se ele já existir
+)
+
+# Cria um logger para uso no script
+logger = logging.getLogger(__name__)
+# --- FIM DA CONFIGURAÇÃO DO LOG ---
+
+
 def calculate_average_frequency(dates):
+    """Calcula a frequência média em dias entre as datas fornecidas."""
+    logger.debug(f"calculate_average_frequency received dates: {dates}")
+    
     if len(dates) < 2:
+        logger.debug(f"Less than 2 dates, returning 0. Dates count: {len(dates)}")
         return 0
     
     dates.sort()
+    logger.debug(f"Sorted dates: {dates}")
     diffs = []
     for i in range(len(dates) - 1):
         diff = dates[i+1] - dates[i]
         diffs.append(diff.days)
     
+    logger.debug(f"Date differences (days): {diffs}")
     if not diffs:
+        logger.debug(f"No differences, returning 0.")
         return 0
         
-    return sum(diffs) / len(diffs)
+    avg_diff = sum(diffs) / len(diffs)
+    logger.debug(f"Average frequency (days): {avg_diff}")
+    return avg_diff
+
+current_pet_id = None
+dates_for_current_pet = []
+
+logger.debug("Reducer script started.")
 
 for line in sys.stdin:
     line = line.strip()
-    pet_id, date_str = line.split('\t')
+    if not line:
+        logger.debug("Empty line received.")
+        continue
+    else:
+        logger.debug(f"Processing line: {line}")
     
-    # Collect all dates for the current pet_id
-    dates_for_pet = []
-    try:
-        dates_for_pet.append(datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S"))
-    except ValueError:
-        # Handle cases where date format might be slightly different or malformed
+    parts = line.split('\t')
+    if len(parts) != 2:
+        logger.debug(f"Skipping malformed reducer input: {line}")
+        continue
+        
+    pet_id, date_and_freq_str = parts
+    logger.debug(f"Received line - pet_id: {pet_id}, date_and_freq_str: {date_and_freq_str}")
+
+    # Split date_and_freq_str into date_str and frequency_str
+    date_parts = date_and_freq_str.split(',')
+    if len(date_parts) != 2:
+        logger.error(f"Skipping malformed date_and_freq_str for pet_id {pet_id}: {date_and_freq_str}")
+        continue
+    
+    date_str = date_parts[0]
+    frequency_str = date_parts[1]
+
+    if current_pet_id is None:
+        current_pet_id = pet_id
+        logger.debug(f"Initializing current_pet_id to {current_pet_id}")
+    
+    if current_pet_id == pet_id:
+        # Same pet_id, collect the date
         try:
-            dates_for_pet.append(datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S.%f"))
-        except ValueError:
-            sys.stderr.write(f"Skipping malformed date for pet_id {pet_id}: {date_str}\n")
-            continue
-
-    # Hadoop streaming groups by key, so we process one pet_id at a time
-    # This reducer assumes that all values for a given key are passed together.
-    # In a real streaming scenario, you'd need to handle state across multiple calls
-    # or use a custom partitioner/combiner if keys are not guaranteed to be grouped.
-    # For simplicity, we'll process the first date and assume subsequent dates for the same pet_id
-    # would be handled by an in-memory aggregation if this were a true streaming reducer.
-    # For this simulation, we'll just use the single date passed.
-    
-    # To correctly simulate the Java reducer, we need all dates for a pet_id.
-    # Since Hadoop Streaming sends one key-value pair per line to the reducer,
-    # a simple Python reducer script like this would typically aggregate all values
-    # for a key. However, the provided Java reducer processes all dates for a single pet_id
-    # at once. To mimic this, we'd need to collect all dates for a pet_id before processing.
-    # For a simple streaming setup, this is usually done by sorting the input by key
-    # and then processing groups.
-    
-    # For now, let's assume the input is already grouped by pet_id and sorted.
-    # In a real streaming job, the framework handles grouping.
-    
-    # To make this reducer work correctly with grouped input from Hadoop Streaming,
-    # we need to collect all dates for a given pet_id.
-    # The standard approach for streaming is to process line by line,
-    # and rely on Hadoop to sort and group keys.
-    
-    # Let's refine this to correctly handle grouped input.
-    # The input to the reducer will be:
-    # pet_id \t date1
-    # pet_id \t date2
-    # ...
-    # pet_id \t dateN
-    
-    # We need to collect all dates for a pet_id before calculating.
-    # This means the reducer needs to maintain state for the current pet_id.
-    
-    current_pet_id = None
-    current_dates = []
-
-    # The input is already grouped by pet_id due to Hadoop's sort and shuffle phase.
-    # We can process it by detecting changes in pet_id.
-    
-    # This simple reducer processes one line at a time.
-    # To get all dates for a pet_id, we need to read all lines for that pet_id.
-    # This is typically handled by the Hadoop framework.
-    # For a single reducer call for a key, `values` would contain all dates.
-    # Since we are reading from stdin line by line, we need to simulate this.
-    
-    # Let's assume the input is already sorted by pet_id.
-    # We'll process groups of lines for the same pet_id.
-    
-    # This is a common pattern for streaming reducers:
-    # Initialize variables for the current key
-    # Loop through input lines
-    #   If key changes, process previous key's values and reset
-    #   Add value to current key's list
-    # Process the last key's values after the loop
-    
-    # However, for a single reducer script, it receives one key and an iterator of values.
-    # The `for line in sys.stdin` loop is effectively iterating over the values for a single key
-    # if the input is pre-grouped by Hadoop.
-    
-    # Let's simplify and assume the input to this script is already grouped for one pet_id.
-    # If not, the Hadoop Streaming setup needs to ensure proper grouping.
-    
-    # Re-evaluating the Java reducer: it receives `Text key, Iterable<Text> values`.
-    # This means all values for a key are available in the `values` iterable.
-    # To replicate this in Python streaming, the `sys.stdin` should effectively provide
-    # all values for a single key in a single invocation of the reducer script,
-    # or the script needs to handle state across multiple invocations for the same key.
-    
-    # The most straightforward way for Hadoop Streaming is to have the reducer script
-    # process one key and all its values. This means the input to the reducer script
-    # would be something like:
-    # pet_id \t date1
-    # pet_id \t date2
-    # ...
-    
-    # Let's adjust the logic to collect all dates for a pet_id from the input stream
-    # before performing calculations, assuming the input is grouped by pet_id.
-    
-    # This is a common pattern for streaming reducers:
-    # current_pet_id = None
-    # current_dates = []
-    # for line in sys.stdin:
-    #     pet_id, date_str = line.strip().split('\t')
-    #     if current_pet_id and current_pet_id != pet_id:
-    #         # Process previous pet_id's dates
-    #         process_pet_dates(current_pet_id, current_dates)
-    #         current_dates = []
-    #     current_pet_id = pet_id
-    #     current_dates.append(datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S"))
-    # if current_pet_id:
-    #     process_pet_dates(current_pet_id, current_dates)
-    
-    # However, the `for line in sys.stdin` loop in a Hadoop Streaming reducer
-    # typically means it's processing *one* key's values.
-    # The framework handles the grouping and calls the reducer script for each unique key.
-    # So, `sys.stdin` for a reducer script will contain all lines for a single key.
-    
-    # Let's assume `sys.stdin` contains all key-value pairs for a single pet_id.
-    # Example input to reducer.py:
-    # 1\t2025-04-10 14:00:00
-    # 1\t2025-05-11 14:00:00
-    # 1\t2025-06-12 14:00:00
-    
-    # So, we need to collect all dates from sys.stdin for the current pet_id.
-    
-    all_dates_for_current_pet = []
-    first_pet_id = None
-
-    # Read all lines for the current pet_id from stdin
-    # (Hadoop Streaming ensures all values for a key are piped to one reducer instance)
-    for line_from_stdin in sys.stdin:
-        line_from_stdin = line_from_stdin.strip()
-        if not line_from_stdin:
-            continue
-        
-        parts = line_from_stdin.split('\t')
-        if len(parts) != 2:
-            sys.stderr.write(f"Skipping malformed reducer input: {line_from_stdin}\n")
-            continue
-            
-        current_pet_id_from_line, date_str_from_line = parts
-        
-        if first_pet_id is None:
-            first_pet_id = current_pet_id_from_line
-        
-        # Ensure we are processing dates for the same pet_id
-        if current_pet_id_from_line != first_pet_id:
-            sys.stderr.write(f"Error: Reducer received multiple pet_ids. Expected {first_pet_id}, got {current_pet_id_from_line}\n")
-            continue # This should not happen with proper Hadoop grouping
-
-        try:
-            all_dates_for_current_pet.append(datetime.strptime(date_str_from_line, "%Y-%m-%d %H:%M:%S"))
+            parsed_date = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+            dates_for_current_pet.append(parsed_date)
+            logger.debug(f"Successfully parsed date {date_str} for {pet_id}. dates_for_current_pet: {dates_for_current_pet}")
         except ValueError:
             try:
-                all_dates_for_current_pet.append(datetime.strptime(date_str_from_line, "%Y-%m-%d %H:%M:%S.%f"))
+                parsed_date = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S.%f")
+                dates_for_current_pet.append(parsed_date)
+                logger.debug(f"Successfully parsed date {date_str} (with microseconds) for {pet_id}. dates_for_current_pet: {dates_for_current_pet}")
             except ValueError:
-                sys.stderr.write(f"Skipping malformed date for pet_id {first_pet_id}: {date_str_from_line}\n")
+                logger.error(f"Skipping malformed date for pet_id {pet_id}: {date_str}")
+                continue
+    else:
+        # Process the previous pet_id's dates
+        logger.warning(f"Key change detected within a single reducer invocation. Previous pet_id: {current_pet_id}, New pet_id: {pet_id}. This is unexpected in standard streaming behavior.")
+        
+        if len(dates_for_current_pet) >= 2:
+            avg_freq_days = calculate_average_frequency(dates_for_current_pet)
+            last_appointment = max(dates_for_current_pet)
+            now = datetime.now()
+            
+            # Determine base date for next appointment calculation
+            base_date = last_appointment if last_appointment > now else now
+            
+            suggested_date = base_date + timedelta(days=avg_freq_days)
+            
+            print(f"{current_pet_id}\t{suggested_date.strftime('%Y-%m-%d')},{int(avg_freq_days)}")
+            logger.debug(f"Emitted output for previous pet_id {current_pet_id}: {suggested_date.strftime('%Y-%m-%d')},{int(avg_freq_days)}")
+        else:
+            logger.debug(f"Skipping previous pet_id {current_pet_id} due to less than 2 valid dates ({len(dates_for_current_pet)})")
+        
+        # Reset for the new pet_id
+        current_pet_id = pet_id
+        dates_for_current_pet = []
+        try:
+            parsed_date = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+            dates_for_current_pet.append(parsed_date)
+            logger.debug(f"Started collecting for new pet_id {current_pet_id}. dates_for_current_pet: {dates_for_current_pet}")
+        except ValueError:
+            try:
+                parsed_date = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S.%f")
+                dates_for_current_pet.append(parsed_date)
+                logger.debug(f"Started collecting for new pet_id {current_pet_id} (with microseconds). dates_for_current_pet: {dates_for_current_pet}")
+            except ValueError:
+                logger.error(f"Skipping malformed date for new pet_id {pet_id}: {date_str}")
                 continue
 
-    if not all_dates_for_current_pet:
-        sys.stderr.write(f"No valid dates found for pet_id {first_pet_id}\n")
-    elif len(all_dates_for_current_pet) < 2:
-        sys.stderr.write(f"Skipping pet_id {first_pet_id} due to less than 2 valid dates ({len(all_dates_for_current_pet)})\n")
-    else:
-        avg_freq_days = calculate_average_frequency(all_dates_for_current_pet)
-        
-        last_appointment = max(all_dates_for_current_pet)
+# Process the last pet_id after the loop finishes
+logger.debug(f"End of stdin loop. Processing last pet_id: {current_pet_id}")
+if current_pet_id is not None:
+    if len(dates_for_current_pet) >= 2:
+        avg_freq_days = calculate_average_frequency(dates_for_current_pet)
+        last_appointment = max(dates_for_current_pet)
         now = datetime.now()
         
         base_date = last_appointment if last_appointment > now else now
         
         suggested_date = base_date + timedelta(days=avg_freq_days)
         
-        print(f"{first_pet_id}\t{suggested_date.strftime('%Y-%m-%d')},{int(avg_freq_days)}")
+        print(f"{current_pet_id}\t{suggested_date.strftime('%Y-%m-%d')},{int(avg_freq_days)}")
+        logger.debug(f"Emitted final output for pet_id {current_pet_id}: {suggested_date.strftime('%Y-%m-%d')},{int(avg_freq_days)}")
+    else:
+        logger.debug(f"Skipping final pet_id {current_pet_id} due to less than 2 valid dates ({len(dates_for_current_pet)})")
+
+logger.debug("Reducer script finished.")

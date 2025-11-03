@@ -38,13 +38,22 @@ sqoop import \
 echo "Cleaning HDFS output directory..."
 hdfs dfs -test -d $OUTPUT_DIR && hdfs dfs -rm -r $OUTPUT_DIR || true
 
+# Ensures that the scripts are executable.
+chmod +x $MAPPER_PATH
+chmod +x $REDUCER_PATH
+
 # Run Hadoop job
 echo "Running Hadoop MapReduce job..."
 hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-*.jar \
-    -file $MAPPER_PATH -mapper $MAPPER_PATH \
-    -file $REDUCER_PATH -reducer $REDUCER_PATH \
+    -file $MAPPER_PATH \
+    -mapper 'python3 mapper.py' \
+    -file $REDUCER_PATH \
+    -reducer 'python3 reducer.py' \
     -input $INPUT_DIR \
     -output $OUTPUT_DIR
+
+# Renomeia o arquivo de saída para seguir o padrão 'part-r-00000'
+hdfs dfs -mv $OUTPUT_DIR/part-00000 $OUTPUT_DIR/part-r-00000
 
 # Load results to Redis
 # echo "Loading results to Redis..."

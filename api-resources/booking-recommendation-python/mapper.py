@@ -7,5 +7,6 @@ for line in sys.stdin:
     fields = line.split(',')
     if len(fields) >= 3:
         pet_id = fields[0]
-        appointment_date = fields[2].strip()
-        print(f"{pet_id}\t{appointment_date}")
+        appointment_date = fields[1].strip()
+        frequency = fields[2].strip()
+        print(f"{pet_id}\t{appointment_date},{frequency}")
