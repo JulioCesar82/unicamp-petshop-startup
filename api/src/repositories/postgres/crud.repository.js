@@ -108,12 +108,24 @@ const findAsync = (tableName) => async (filters, organizationId, page = default_
             validateValue(filters[key]);
         });
 
-        const whereClauses = filterKeys.map((key, i) => `${tableName}.${key} = $${i + 1}`);
-        const whereString = ` WHERE ${whereClauses.join(' AND ')}`;
-        selectQuery += whereString;
-        countQuery += whereString;
+        const whereClauses = filterKeys.map((key, i) => {
+            const value = filters[key];
+            if (Array.isArray(value)) {
+                // Create placeholders like ($1, $2, $3) for the IN clause
+                const placeholders = value.map((_, j) => `$${params.length + j + 1}`).join(', ');
+                params.push(...value);
+                return `${tableName}.${key} IN (${placeholders})`;
+            } else {
+                params.push(value);
+                return `${tableName}.${key} = $${params.length}`;
+            }
+        });
 
-        params.push(...Object.values(filters));
+        if (whereClauses.length > 0) {
+            const whereString = ` WHERE ${whereClauses.join(' AND ')}`;
+            selectQuery += whereString;
+            countQuery += whereString;
+        }
     }
 
     const { query: filteredSelectQuery, params: finalSelectParams } = applyOrganizationFilter(selectQuery, params, tableName, organizationId);

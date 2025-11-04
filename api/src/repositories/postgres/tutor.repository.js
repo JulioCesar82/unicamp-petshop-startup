@@ -9,13 +9,24 @@ const { default_page, default_page_size, max_page_size } = require('../../config
 const aggregateRecommendationsAsync = async (tutorId, organizationId, page, pageSize, fetchRecommendationsForPet) => {
     // Fetch all pets for the tutor so we can aggregate all recommendations
     const pets = await petRepository.findPetsByCriteriaAsync({ tutor_id: tutorId }, organizationId, default_page, max_page_size);
-    const recommendations = [];
-
-    for (const pet of pets.data) {
-        // fetch all recommendations for each pet (fetchRecommendationsForPet should follow signature (petId, orgId, page, pageSize))
-        const petRecommendations = await fetchRecommendationsForPet(pet.pet_id, organizationId, default_page, max_page_size);
-        recommendations.push(...(petRecommendations.data || []));
+    
+    if (!pets.data || pets.data.length === 0) {
+        return {
+            data: [],
+            pagination: {
+                totalItems: 0,
+                totalPages: 0,
+                currentPage: page || default_page,
+                pageSize: pageSize || default_page_size
+            }
+        };
     }
+
+    const petIds = pets.data.map(pet => pet.pet_id);
+    
+    // Fetch all recommendations for the pet IDs in a single query
+    const petRecommendations = await fetchRecommendationsForPet(petIds, organizationId, default_page, max_page_size);
+    const recommendations = petRecommendations.data || [];
 
     // Pagination over aggregated recommendations
     const total = recommendations.length;

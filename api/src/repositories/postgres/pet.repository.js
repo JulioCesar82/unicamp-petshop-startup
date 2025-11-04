@@ -32,12 +32,24 @@ const findPetsByCriteriaAsync = async (criteria, organizationId, page, pageSize)
     return await petCrud.findAsync(criteria, organizationId, page, pageSize);
 };
 
-const getBookingRecommendationsAsync = async (petId, organizationId, page, pageSize) => {
-    return await bookingRecCrud.findAsync({ pet_id: petId, ignore_recommendation: false }, organizationId, page, pageSize);
+const getBookingRecommendationsAsync = async (petIds, organizationId, page, pageSize) => {
+    const criteria = { ignore_recommendation: false };
+    if (Array.isArray(petIds)) {
+        criteria.pet_id = petIds;
+    } else {
+        criteria.pet_id = [petIds];
+    }
+    return await bookingRecCrud.findAsync(criteria, organizationId, page, pageSize);
 };
 
-const getVaccineRecommendationsAsync = async (petId, organizationId, page, pageSize) => {
-    return await vaccineRecCrud.findAsync({ pet_id: petId, ignore_recommendation: false }, organizationId, page, pageSize);
+const getVaccineRecommendationsAsync = async (petIds, organizationId, page, pageSize) => {
+    const criteria = { ignore_recommendation: false };
+    if (Array.isArray(petIds)) {
+        criteria.pet_id = petIds;
+    } else {
+        criteria.pet_id = [petIds];
+    }
+    return await vaccineRecCrud.findAsync(criteria, organizationId, page, pageSize);
 };
 
 module.exports = {
