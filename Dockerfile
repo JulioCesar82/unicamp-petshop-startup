@@ -47,7 +47,7 @@ RUN apt-get update && \
 
 # Definir variáveis de ambiente para Java e Hadoop
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-ENV HADOOP_VERSION=2.9.2
+ENV HADOOP_VERSION=3.4.2
 ENV SQOOP_VERSION=1.4.7
 ENV HADOOP_HOME=/usr/local/hadoop
 ENV SQOOP_HOME=/usr/local/sqoop
@@ -65,7 +65,9 @@ RUN wget -q https://archive.apache.org/dist/sqoop/${SQOOP_VERSION}/sqoop-${SQOOP
     tar -xvf sqoop-${SQOOP_VERSION}.bin__hadoop-2.6.0.tar.gz -C /usr/local && \
     rm sqoop-${SQOOP_VERSION}.bin__hadoop-2.6.0.tar.gz && \
     mv /usr/local/sqoop-${SQOOP_VERSION}.bin__hadoop-2.6.0 ${SQOOP_HOME} && \
-    cp ${HADOOP_HOME}/share/hadoop/common/lib/postgresql-42.2.5.jar ${SQOOP_HOME}/lib/
+    cp ${HADOOP_HOME}/share/hadoop/common/lib/postgresql-42.2.5.jar ${SQOOP_HOME}/lib/ && \
+    rm -f ${SQOOP_HOME}/lib/commons-lang3-*.jar && \
+    cp ${HADOOP_HOME}/share/hadoop/common/lib/commons-lang-2.6.jar ${SQOOP_HOME}/lib/
 
 # Copiar arquivos de configuração do Hadoop
 # Define the command to run your app
