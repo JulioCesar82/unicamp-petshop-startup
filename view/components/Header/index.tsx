@@ -55,7 +55,7 @@ export const Header = () => {
           <li><a href="#lojas">Lojas</a></li>
           <li><a href="#blog">Blog</a></li>
           <li><a href="#promocoes">Promoções</a></li>
-          <li><a href="#" onClick={() => navigate('register-pet')}>Cadastrar Pet</a></li> {/* New link */}
+          {/*<li><a href="#" onClick={() => navigate('register-pet')}>Cadastrar Pet</a></li>} {/* New link */}
         </ul>
       </nav>
     </header>

@@ -16,7 +16,7 @@ const App = () => {
   return (
     <>
       {currentPage === 'home' && <HomePage />}
-      {currentPage === 'register-pet' && <PetRegistrationPage />}
+      {/* {currentPage === 'register-pet' && <PetRegistrationPage />} */}
     </>
   );
 };

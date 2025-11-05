@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Install PostgreSQL client if not already installed
+sudo apt-get update && \
+    sudo apt-get install -y postgresql-client-17
+
 # Exit on error
 set -e
 
