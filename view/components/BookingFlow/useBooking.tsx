@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pet, Service } from '../../domain/entities';
+import { Pet, Service, VaccineRecommendation, BookingRecommendation } from '../../domain/entities';
 import { CreateBooking } from '../../application/CreateBooking';
 
 interface UseBookingOptions {
@@ -9,17 +9,18 @@ interface UseBookingOptions {
 
 export function useBooking(createBookingUseCase: CreateBooking, options: UseBookingOptions = {}) {
   const { initialStep = 1, onComplete } = options;
-  const steps = ['Cadastro', 'Serviço', 'Agendamento', 'Confirmação'];
+  const steps = ['Pet', 'Recomendações', 'Agendamento', 'Confirmação']; // Updated steps
   const [currentStep, setCurrentStep] = React.useState<number>(initialStep);
   const [petData, setPetData] = React.useState<Pet | null>(null);
   const [selectedService, setSelectedService] = React.useState<Service | null>(null);
   const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = React.useState<string | null>(null);
+  const [selectedRecommendations, setSelectedRecommendations] = React.useState<(VaccineRecommendation | BookingRecommendation)[]>([]);
 
   const next = React.useCallback(() => {
     console.log('Current Step before next():', currentStep);
     setCurrentStep(s => Math.min(s + 1, steps.length));
-  }, []);
+  }, [currentStep, steps.length]);
 
   const back = React.useCallback(() => {
     setCurrentStep(s => Math.max(s - 1, 1));
@@ -44,6 +45,7 @@ export function useBooking(createBookingUseCase: CreateBooking, options: UseBook
     selectedService,
     selectedDate,
     selectedTime,
+    selectedRecommendations,
     next,
     back,
     complete,
@@ -51,6 +53,7 @@ export function useBooking(createBookingUseCase: CreateBooking, options: UseBook
     setSelectedService,
     setSelectedDate,
     setSelectedTime,
+    setSelectedRecommendations,
   } as const;
 }
 

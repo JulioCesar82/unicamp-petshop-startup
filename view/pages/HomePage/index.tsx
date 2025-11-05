@@ -1,33 +1,27 @@
 import React from "react";
+
 import { Footer } from "../../components/Footer";
 import { Header } from "../../components/Header";
 import { BookingReminder } from "../../components/BookingReminder";
-import { BookingReminderRepository } from "../../data/BookingReminderRepository";
-import { GetBookingRecommendations } from "../../application/GetBookingRecommendations";
-import { PetRecommendation } from "../../domain/entities";
+
+import { useUser } from "../../contexts/UserContext";
+import { useRecommendations } from "../../contexts/RecommendationContext";
+
 import "./styles.css";
 
-const bookingReminderRepository = new BookingReminderRepository();
-const getBookingRecommendationsUseCase = new GetBookingRecommendations(bookingReminderRepository);
-
 export const HomePage = () => {
+  const { tutor, loading: loadingUser } = useUser();
+  const { petRecommendations, loadingRecommendations } = useRecommendations();
   const [showReminder, setShowReminder] = React.useState(false);
-  const [recommendations, setRecommendations] = React.useState<PetRecommendation[]>([]);
 
   React.useEffect(() => {
-    // Fetch booking recommendations for tutor ID 1
-    getBookingRecommendationsUseCase.execute('1')
-      .then((data) => {
-        setRecommendations(data);
-        // Only show the reminder if there are recommendations
-        if (data.length > 0) {
-          const timer = setTimeout(() => {
-            setShowReminder(true);
-          }, 5000);
-          return () => clearTimeout(timer);
-        }
-      });
-  }, []);
+    if (!loadingUser && !loadingRecommendations && petRecommendations.length > 0) {
+      const timer = setTimeout(() => {
+        setShowReminder(true);
+      }, 5000); // Show reminder after 5 seconds if there are recommendations
+      return () => clearTimeout(timer);
+    }
+  }, [loadingUser, loadingRecommendations, petRecommendations]);
 
   const offers = [
     {
@@ -99,9 +93,8 @@ export const HomePage = () => {
       </main>
       <Footer />
       
-      {showReminder && recommendations.length > 0 && (
+      {showReminder && petRecommendations.length > 0 && (
         <BookingReminder
-          recommendations={recommendations}
           onClose={() => setShowReminder(false)}
           onSchedule={() => {
             // Não fechamos o modal aqui para permitir que o fluxo de agendamento seja mostrado

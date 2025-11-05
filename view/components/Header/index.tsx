@@ -1,6 +1,11 @@
+import { useNavigation } from '../../contexts/NavigationContext';
+import { useUser } from '../../contexts/UserContext';
 import './styles.css';
 
 export const Header = () => {
+  const { navigate } = useNavigation();
+  const { tutor, loading } = useUser();
+
   return (
     <header className="header">
       <div className="header-top">
@@ -22,7 +27,13 @@ export const Header = () => {
         </div>
 
         <div className="user-actions">
-          <div className="user-greeting">Olá, Marcelo!</div>
+          <div className="user-greeting">
+            {loading ? (
+              <div className="loading-skeleton"></div>
+            ) : (
+              <>Olá, {tutor?.name || 'Visitante'}!</>
+            )}
+          </div>
           <div className="cart-icon">
             <i className="fas fa-shopping-cart"></i>
           </div>
@@ -44,6 +55,7 @@ export const Header = () => {
           <li><a href="#lojas">Lojas</a></li>
           <li><a href="#blog">Blog</a></li>
           <li><a href="#promocoes">Promoções</a></li>
+          <li><a href="#" onClick={() => navigate('register-pet')}>Cadastrar Pet</a></li> {/* New link */}
         </ul>
       </nav>
     </header>

@@ -12,9 +12,9 @@ export const Footer = () => {
         <div className="footer-section">
           <h4>Links Úteis</h4>
           <ul>
-            <li><a href="/sobre">Sobre Nós</a></li>
-            <li><a href="/termos">Termos de Uso</a></li>
-            <li><a href="/privacidade">Política de Privacidade</a></li>
+            <li><a href="#sobre">Sobre Nós</a></li>
+            <li><a href="#termos">Termos de Uso</a></li>
+            <li><a href="#privacidade">Política de Privacidade</a></li>
           </ul>
         </div>
       </div>

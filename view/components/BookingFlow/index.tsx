@@ -2,29 +2,22 @@ import React, { useEffect, useState } from 'react';
 import './styles.css';
 import { useBooking } from './useBooking';
 import { StepIndicator } from './StepIndicator';
-import { PetRegistration } from './PetRegistration';
-import { ServiceSelection } from './ServiceSelection';
+import { PetSelection } from './PetSelection'; // Renamed from PetRegistration
+import { RecommendationSelection } from './RecommendationSelection'; // New component
 import { DateSelection } from './DateSelection';
 import { Confirmation } from './Confirmation';
-import { BookingRepository } from '../../data/BookingRepository';
-import { ServiceRepository } from '../../data/ServiceRepository';
-import { AvailabilityRepository } from '../../data/AvailabilityRepository';
+
 import { CreateBooking } from '../../application/CreateBooking';
 import { GetServices } from '../../application/GetServices';
 import { GetAvailableSlots } from '../../application/GetAvailableSlots';
-import { Pet, Service } from '../../domain/entities';
+import { Pet, Service, PetRecommendation, VaccineRecommendation, BookingRecommendation } from '../../domain/entities';
+import { useRepositories } from '../../contexts/RepositoryContext';
+import { useRecommendations } from '../../contexts/RecommendationContext';
 
 interface BookingFlowProps {
   onClose: () => void;
-  initialPet?: Pet;
+  petRecommendations: PetRecommendation[];
 }
-
-const bookingRepository = new BookingRepository();
-const serviceRepository = new ServiceRepository();
-const availabilityRepository = new AvailabilityRepository();
-const createBookingUseCase = new CreateBooking(bookingRepository);
-const getServicesUseCase = new GetServices(serviceRepository);
-const getAvailableSlotsUseCase = new GetAvailableSlots(availabilityRepository);
 
 // Helper function to parse duration string to minutes
 function parseDurationToMinutes(duration: string): number {
@@ -41,8 +34,13 @@ function parseDurationToMinutes(duration: string): number {
   return 60;
 }
 
-export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, initialPet }) => {
-  const initialStep = true/*initialPet?.breed === ''*/ ? 2 : 1;
+export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, petRecommendations }) => {
+  const { bookingRepository, serviceRepository, availabilityRepository } = useRepositories();
+  const { dismissRecommendation, snoozeRecommendation } = useRecommendations();
+
+  const createBookingUseCase = React.useMemo(() => new CreateBooking(bookingRepository), [bookingRepository]);
+  const getServicesUseCase = React.useMemo(() => new GetServices(serviceRepository), [serviceRepository]);
+  const getAvailableSlotsUseCase = React.useMemo(() => new GetAvailableSlots(availabilityRepository), [availabilityRepository]);
 
   const {
     currentStep,
@@ -51,6 +49,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, initialPet })
     selectedService,
     selectedDate,
     selectedTime,
+    selectedRecommendations,
     next,
     back,
     complete,
@@ -58,14 +57,15 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, initialPet })
     setSelectedService,
     setSelectedDate,
     setSelectedTime,
-  } = useBooking(createBookingUseCase, { onComplete: onClose, initialStep });
+    setSelectedRecommendations,
+  } = useBooking(createBookingUseCase, { onComplete: onClose, initialStep: 1 });
 
   const [services, setServices] = useState<Service[]>([]);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
 
   useEffect(() => {
     getServicesUseCase.execute().then(setServices);
-  }, []);
+  }, [getServicesUseCase]);
 
   useEffect(() => {
     if (currentStep === 3 && !selectedDate) {
@@ -82,11 +82,39 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, initialPet })
       getAvailableSlotsUseCase.execute(selectedDate, durationInMinutes)
         .then(setAvailableSlots);
     }
-  }, [selectedDate, selectedService]);
+  }, [selectedDate, selectedService, getAvailableSlotsUseCase]);
+
+  const handleCompleteBooking = async () => {
+    await complete();
+    // Mark selected recommendations as dismissed
+    selectedRecommendations.forEach(rec => {
+      if ('vaccineName' in rec) {
+        dismissRecommendation(rec as VaccineRecommendation, 'vaccine');
+      } else {
+        dismissRecommendation(rec as BookingRecommendation, 'booking');
+      }
+    });
+    // Mark unselected recommendations as snoozed
+    petRecommendations.forEach(petRec => {
+      petRec.vaccineRecommendations.forEach(rec => {
+        if (!selectedRecommendations.some(sRec => sRec.id === rec.id)) {
+          snoozeRecommendation(rec, 'vaccine');
+        }
+      });
+      petRec.bookingRecommendations.forEach(rec => {
+        if (!selectedRecommendations.some(sRec => sRec.id === rec.id)) {
+          snoozeRecommendation(rec, 'booking');
+        }
+      });
+    });
+    onClose();
+  };
 
   let isNextButtonDisabled = false;
-  if (currentStep === 2) {
-    isNextButtonDisabled = !selectedService;
+  if (currentStep === 1) {
+    isNextButtonDisabled = !petData;
+  } else if (currentStep === 2) {
+    isNextButtonDisabled = selectedRecommendations.length === 0;
   } else if (currentStep === 3) {
     isNextButtonDisabled = !selectedDate || !selectedTime;
   }
@@ -104,19 +132,21 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, initialPet })
 
         <div className="booking-flow-content">
           {currentStep === 1 && (
-            <PetRegistration
-              onSubmit={(data) => {
-                setPetData(data);
+            <PetSelection
+              petRecommendations={petRecommendations}
+              onSelectPet={(pet) => {
+                setPetData(pet);
                 next();
               }}
             />
           )}
 
           {currentStep === 2 && (
-            <ServiceSelection
-              services={services}
-              onSelect={setSelectedService}
-              selectedService={selectedService}
+            <RecommendationSelection
+              petRecommendations={petRecommendations}
+              selectedPetId={petData?.id}
+              selectedRecommendations={selectedRecommendations}
+              onSelectRecommendations={setSelectedRecommendations}
             />
           )}
 
@@ -136,10 +166,10 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, initialPet })
           {currentStep === 4 && (
             <Confirmation
               petName={petData?.name || ''}
-              serviceName={selectedService?.name || ''}
               date={selectedDate!}
               time={selectedTime!}
-              price={selectedService?.price || 0}
+              selectedRecommendations={selectedRecommendations}
+              services={services}
             />
           )}
         </div>
@@ -153,7 +183,7 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, initialPet })
 
           <button
             className="primary-button"
-            onClick={currentStep === steps.length ? complete : next}
+            onClick={currentStep === steps.length ? handleCompleteBooking : next}
             disabled={isNextButtonDisabled}
           >
             {currentStep === steps.length ? 'Confirmar Agendamento' : 'Próximo'}

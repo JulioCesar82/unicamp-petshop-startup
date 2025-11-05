@@ -1,20 +1,22 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const appConfig = require('../../package.json');
+
+const description = `${appConfig.description}
+
+---
+**Base URL (Produção):** \`/api/v1/\`
+**Swagger JSON:** [api-docs.json](/api-docs.json)
+
+`;
 
 const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Petshop API',
-      version: '1.0.0',
-      description: `API para o laboratório de Hadoop com um petshop. Antes de mais nada, é necessário criar uma organização através do convite fornecido previamente, após a criação da organização você receberá uma chave de API (ApiKey) para autenticar suas solicitações. O acesso à API é protegido pela chave de API (ApiKey), garantindo que apenas usuários autorizados possam interagir com os recursos do sistema.
-
----
-
-**Base URL (Produção):** \`/api/v1/\`
-**Swagger JSON:** [api-docs.json](/api-docs.json)
-
-`,
+      title: appConfig.name,
+      version: appConfig.version,
+      description,
     },
     servers: [
       {

@@ -1,10 +1,11 @@
+import { ServiceRepository } from '../data/ServiceRepository';
 import { Service } from '../domain/entities';
-import { IServiceRepository } from '../domain/repositories';
 
 export class GetServices {
-  constructor(private serviceRepository: IServiceRepository) {}
+  constructor(private serviceRepository: ServiceRepository) {}
 
   async execute(): Promise<Service[]> {
-    return this.serviceRepository.getServices();
+    const response = await this.serviceRepository.findAll();
+    return response.data;
   }
 }

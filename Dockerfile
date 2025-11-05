@@ -36,12 +36,12 @@ RUN apt-get update && \
     echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
 
 # Instalar PostgreSQL
-# RUN apt-get update && \
-#     apt-get install -y \
-#     postgresql-17 \
-#     postgresql-client-17 \
-#     postgresql-contrib-17 && \
-#     rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y \
+    postgresql-17 \
+    postgresql-contrib-17 && \
+    rm -rf /var/lib/apt/lists/*
+    # postgresql-client-17 \
 
 # RUN apt-get update && \
     # redis-server

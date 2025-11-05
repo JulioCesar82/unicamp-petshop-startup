@@ -1,27 +1,26 @@
 .confirmation {
-  padding: 24px;
-  max-width: 600px;
-  margin: 0 auto;
+  padding: 1rem;
 }
 
 .confirmation h2 {
-  color: #333;
-  margin-bottom: 24px;
   text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
 }
 
 .confirmation-details {
-  background: white;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
   border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed #eee;
 }
 
 .detail-row:last-child {
@@ -29,33 +28,35 @@
 }
 
 .detail-row .label {
-  color: #666;
-  font-weight: 500;
+  font-weight: 600;
+  color: #555;
 }
 
 .detail-row .value {
   color: #333;
-  font-weight: 600;
 }
 
 .detail-row.total {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 2px solid #eee;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #FF6B00;
+  border-top: 2px solid #FF6B00;
+  margin-top: 1rem;
+  padding-top: 1rem;
 }
 
-.detail-row.total .label,
-.detail-row.total .value {
-  font-size: 1.2em;
-  color: #4CAF50;
+.services-list .value {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.confirmation-service-item {
+  margin: 0;
+  padding: 0.2rem 0;
+  font-size: 0.95rem;
 }
 
 .confirmation.error {
-  text-align: center;
-  color: #d32f2f;
-}
-
-.confirmation.error p {
-  margin-top: 16px;
-  color: #666;
+  color: #dc3545;
 }

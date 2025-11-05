@@ -1,8 +1,27 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
 .booking-flow-modal {
-  max-width: 800px;
-  max-height: 90vh;
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 700px;
+  position: relative;
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
 }
 
 .close-button {
@@ -15,7 +34,6 @@
   color: #666;
   cursor: pointer;
   padding: 0.5rem;
-  z-index: 1;
   transition: color 0.2s;
 }
 
@@ -24,22 +42,20 @@
 }
 
 .booking-flow-header {
-  padding: 2rem;
-  border-bottom: 1px solid #E5E5E5;
+  text-align: center;
 }
 
 .booking-flow-content {
-  padding: 2rem;
-  flex: 1;
-  overflow-y: auto;
+  flex-grow: 1;
+  padding: 1rem 0;
 }
 
 .booking-flow-footer {
-  padding: 1.5rem 2rem;
-  border-top: 1px solid #E5E5E5;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
 }
 
 .primary-button {
@@ -57,41 +73,220 @@
   background: #e65d00;
 }
 
-.primary-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
 .secondary-button {
   background: transparent;
   color: #666;
-  border: none;
+  border: 1px solid #ccc;
   padding: 0.75rem 1.5rem;
+  border-radius: 4px;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: all 0.2s;
 }
 
 .secondary-button:hover {
   color: #333;
+  border-color: #666;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* Pet Selection Styles */
+.pet-selection h3 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
+.pet-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.pet-card {
+  border: 2px solid #eee;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 120px;
+}
+
+.pet-card:hover {
+  border-color: #FF6B00;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pet-card.selected {
+  border-color: #FF6B00;
+  background-color: #fff7ed;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.pet-card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+  border: 1px solid #ddd;
+}
+
+.pet-card h4 {
+  margin: 0.5rem 0 0.2rem;
+  color: #333;
+  font-size: 1rem;
+}
+
+.pet-card p {
+  margin: 0;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+/* Recommendation Selection Styles */
+.recommendation-selection h3 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.recommendation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.recommendation-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.recommendation-item-name
+{
+  width: 40%;
+}
+
+.recommendation-item:hover {
+  border-color: #FF6B00;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.recommendation-item.selected {
+  border-color: #FF6B00;
+  background-color: #fff7ed;
+}
+
+.recommendation-item input[type="checkbox"] {
+  accent-color: #FF6B00;
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.recommendation-item span {
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Date Selection Styles */
+.date-selection h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.date-picker-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.time-slot-button {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.time-slot-button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+  border-color: #bbb;
+}
+
+.time-slot-button.selected {
+  background-color: #FF6B00;
+  color: white;
+  border-color: #e65d00;
+}
+
+.time-slot-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Confirmation Styles */
+.confirmation-step h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.confirmation-details {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.confirmation-details p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.confirmation-details p strong {
+  color: #333;
+}
+
+.confirmation-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #28a745;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .booking-flow-modal {
+    padding: 1rem;
+    width: 95%;
   }
-  to {
-    transform: translateY(0);
-    opacity: 1;
+
+  .booking-flow-footer {
+    flex-direction: column-reverse;
+  }
+
+  .primary-button, .secondary-button {
+    width: 100%;
   }
 }

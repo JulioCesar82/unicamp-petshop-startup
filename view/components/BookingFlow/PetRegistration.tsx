@@ -1,22 +1,38 @@
 import React from 'react';
+
+import { PetRepository } from '../../data/PetRepository';
+import { useUser } from '../../contexts/UserContext';
 import { Pet } from '../../domain/entities';
+
 import './PetRegistration.css';
 
 interface Props {
   onSubmit: (data: Pet) => void;
 }
 
+const petRepository = new PetRepository();
+
 export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
+  const { tutor } = useUser();
   const [formData, setFormData] = React.useState<Partial<Pet>>({
-    species: 'dog',
+    species: 'Cachorro',
     size: 'small',
     furType: 'small',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.name && formData.breed && formData.birthDate) {
-      onSubmit(formData as Pet);
+    if (formData.name && formData.breed && formData.birthDate && tutor?.id) {
+      try {
+        const newPet = await petRepository.createPet({ ...formData, tutorId: tutor.tutor_id } as Omit<Pet, 'id'>);
+        if (formData.photo) {
+          await petRepository.uploadPetImage(newPet.id!, formData.photo);
+        }
+        onSubmit(newPet);
+      } catch (error) {
+        console.error("Failed to create pet:", error);
+        // Here you could show an error message to the user
+      }
     }
   };
 
@@ -92,8 +108,8 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
               <input
                 type="radio"
                 name="species"
-                checked={formData.species === 'dog'}
-                onChange={() => setFormData(prev => ({ ...prev, species: 'dog' }))}
+                checked={formData.species === 'Cachorro'}
+                onChange={() => setFormData(prev => ({ ...prev, species: 'Cachorro' }))}
               />
               <i className="fas fa-dog"></i> Cão
             </label>
@@ -101,8 +117,8 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
               <input
                 type="radio"
                 name="species"
-                checked={formData.species === 'cat'}
-                onChange={() => setFormData(prev => ({ ...prev, species: 'cat' }))}
+                checked={formData.species === 'Gato'}
+                onChange={() => setFormData(prev => ({ ...prev, species: 'Gato' }))}
               />
               <i className="fas fa-cat"></i> Gato
             </label>
@@ -145,7 +161,7 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
           <label>Data nasc.:</label>
           <input
             type="date"
-            value={formData.birthDate ? formData.birthDate.toISOString().split('T')[0] : ''}
+            value={formData.birthDate ? new Date(formData.birthDate).toISOString().split('T')[0] : ''}
             onChange={e => setFormData(prev => ({ ...prev, birthDate: new Date(e.target.value) }))}
             required
           />
@@ -164,8 +180,10 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
           style={{ display: 'none' }}
         />
       </div>
+
+      <div className="form-row">
+        <button type="submit" className="primary-button">Cadastrar Pet</button>
+      </div>
     </form>
   );
 };
-
-export default PetRegistration;
