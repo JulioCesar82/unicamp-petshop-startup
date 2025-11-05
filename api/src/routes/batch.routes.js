@@ -145,6 +145,8 @@ router.get('/:id/result', batchController.getJobResultAsync);
  *               items:
  *                 type: object
  *                 properties:
+ *                   ltv_by_pet_profile_id:
+ *                     type: integer
  *                   species:
  *                     type: string
  *                   animal_type:
@@ -153,19 +155,39 @@ router.get('/:id/result', batchController.getJobResultAsync);
  *                     type: string
  *                   total_value:
  *                     type: string
+ *                   dcreated:
+ *                     type: string
+ *                     format: date-time
+ *                   dlastupdate:
+ *                     type: string
+ *                     format: date-time
+ *                   nenabled:
+ *                     type: boolean
  *             example:
- *               - species: "Cão"
+ *               - ltv_by_pet_profile_id: 1
+ *                 species: "Cão"
  *                 animal_type: "Golden Retriever"
  *                 fur_type: "Longo"
  *                 total_value: "527.50"
- *               - species: "Cão"
+ *                 dcreated: "2025-11-03T20:43:33.786Z"
+ *                 dlastupdate: "2025-11-03T20:43:33.786Z"
+ *                 nenabled: true
+ *               - ltv_by_pet_profile_id: 2
+ *                 species: "Cão"
  *                 animal_type: "Shih Tzu"
  *                 fur_type: "Longo"
  *                 total_value: "251.00"
- *               - species: "Gato"
+ *                 dcreated: "2025-11-03T20:43:33.864Z"
+ *                 dlastupdate: "2025-11-03T20:43:33.864Z"
+ *                 nenabled: true
+ *               - ltv_by_pet_profile_id: 3
+ *                 species: "Gato"
  *                 animal_type: "Siamês"
  *                 fur_type: "Curto"
  *                 total_value: "527.50"
+ *                 dcreated: "2025-11-03T20:43:33.935Z"
+ *                 dlastupdate: "2025-11-03T20:43:33.935Z"
+ *                 nenabled: true
  *       500:
  *         description: Some server error
  */

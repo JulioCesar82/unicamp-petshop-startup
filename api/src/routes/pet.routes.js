@@ -29,13 +29,10 @@ router.use(authenticateApiKeyAsync);
  *       properties:
  *         pet_id:
  *           type: integer
- *           description: The auto-generated id of the pet.
  *         tutor_id:
  *           type: integer
- *           description: The id of the tutor of the pet.
  *         name:
  *           type: string
- *           description: The name of your pet.
  *         image_path:
  *           type: string
  *           nullable: true
@@ -46,13 +43,10 @@ router.use(authenticateApiKeyAsync);
  *           type: boolean
  *         species:
  *           type: string
- *           description: The species of your pet.
  *         animal_type:
  *           type: string
- *           description: The type of your pet.
  *         fur_type:
  *           type: string
- *           description: The fur type of your pet.
  *         dcreated:
  *           type: string
  *           format: date-time
@@ -61,12 +55,6 @@ router.use(authenticateApiKeyAsync);
  *           format: date-time
  *         nenabled:
  *           type: boolean
- *         email:
- *           type: string
- *         phone:
- *           type: string
- *         organization_id:
- *           type: integer
  *       example:
  *         pet_id: 1
  *         tutor_id: 1
@@ -366,19 +354,16 @@ router.delete('/deleteWithList', validateDeletePetList, petController.deleteWith
  *             example:
  *               pet_id: 1
  *               tutor_id: 1
- *               name: "Ana Carolina"
- *               image_path: null
+ *               name: "Bidu"
+ *               image_path: "https://res.cloudinary.com/ddq4phlks/image/upload/v1762203761/pet-images/pet1-image.png"
  *               birth_date: "2025-11-03T03:00:00.000Z"
  *               ignore_recommendation: false
  *               species: "Cão"
  *               animal_type: "Golden Retriever"
  *               fur_type: "Longo"
  *               dcreated: "2025-11-03T20:10:22.337Z"
- *               dlastupdate: "2025-11-03T20:10:22.337Z"
+ *               dlastupdate: "2025-11-03T21:02:40.293Z"
  *               nenabled: true
- *               email: "ana.carolina@email.com"
- *               phone: "55 91234-5678"
- *               organization_id: 1
  *       404:
  *         description: The pet was not found
  */
@@ -439,22 +424,20 @@ router.get('/:id', petController.getByIdAsync);
  *               data:
  *                 - pet_id: 1
  *                   tutor_id: 1
- *                   name: "Ana Carolina"
- *                   image_path: null
+ *                   name: "Bidu"
+ *                   image_path: "https://res.cloudinary.com/ddq4phlks/image/upload/v1762203761/pet-images/pet1-image.png"
  *                   birth_date: "2025-11-03T03:00:00.000Z"
  *                   ignore_recommendation: false
  *                   species: "Cão"
  *                   animal_type: "Golden Retriever"
  *                   fur_type: "Longo"
  *                   dcreated: "2025-11-03T20:10:22.337Z"
- *                   dlastupdate: "2025-11-03T20:10:22.337Z"
+ *                   dlastupdate: "2025-11-03T21:02:40.293Z"
  *                   nenabled: true
- *                   email: "ana.carolina@email.com"
- *                   phone: "55 91234-5678"
- *                   organization_id: 1
+ *                   tutor_name: "Ana Carolina"
  *                 - pet_id: 3
  *                   tutor_id: 2
- *                   name: "Bruno Martins"
+ *                   name: "Thor"
  *                   image_path: null
  *                   birth_date: "2025-07-03T03:00:00.000Z"
  *                   ignore_recommendation: false
@@ -464,14 +447,11 @@ router.get('/:id', petController.getByIdAsync);
  *                   dcreated: "2025-11-03T20:10:22.337Z"
  *                   dlastupdate: "2025-11-03T20:10:22.337Z"
  *                   nenabled: true
- *                   email: "bruno.martins@email.com"
- *                   phone: "55 99876-5432"
- *                   organization_id: 1
+ *                   tutor_name: "Bruno Martins"
  *               pagination:
- *                 totalItems: 2
- *                 totalPages: 1
- *                 currentPage: "1"
- *                 pageSize: "10"
+ *                 page: 1
+ *                 pageSize: 10
+ *                 total: 2
  *       500:
  *         description: Some server error
  */
@@ -560,28 +540,10 @@ router.put('/:id/recommendations/ignore-all', petController.updateRecommendation
  *                         format: date-time
  *                       nenabled:
  *                         type: boolean
- *                       tutor_id:
- *                         type: integer
- *                       name:
+ *                       pet_name:
  *                         type: string
- *                       image_path:
+ *                       tutor_name:
  *                         type: string
- *                         nullable: true
- *                       birth_date:
- *                         type: string
- *                         format: date-time
- *                       species:
- *                         type: string
- *                       animal_type:
- *                         type: string
- *                       fur_type:
- *                         type: string
- *                       email:
- *                         type: string
- *                       phone:
- *                         type: string
- *                       organization_id:
- *                         type: integer
  *                 pagination:
  *                   $ref: '#/components/schemas/PaginatedResponse'
  *             example:
@@ -591,24 +553,12 @@ router.put('/:id/recommendations/ignore-all', petController.updateRecommendation
  *                   suggested_date: "2025-11-09T03:00:00.000Z"
  *                   average_frequency_days: 5
  *                   ignore_recommendation: false
- *                   dcreated: "2025-11-03T20:10:22.337Z"
- *                   dlastupdate: "2025-11-03T20:10:22.337Z"
- *                   nenabled: true
- *                   tutor_id: 1
- *                   name: "Ana Carolina"
- *                   image_path: null
- *                   birth_date: "2025-11-03T03:00:00.000Z"
- *                   species: "Cão"
- *                   animal_type: "Golden Retriever"
- *                   fur_type: "Longo"
- *                   email: "ana.carolina@email.com"
- *                   phone: "55 91234-5678"
- *                   organization_id: 1
+ *                   dcreated: "2025-11-03T20:41:19.914Z"
+ *                   dlastupdate: "2025-11-03T20:41:19.914Z"
  *               pagination:
- *                 totalItems: 1
- *                 totalPages: 1
- *                 currentPage: "1"
- *                 pageSize: "10"
+ *                 page: 1
+ *                 pageSize: 10
+ *                 total: 1
  *       404:
  *         description: The pet was not found.
  *       500:
@@ -680,28 +630,10 @@ router.get('/:id/recommendations/booking', validatePagination, petController.get
  *                         format: date-time
  *                       nenabled:
  *                         type: boolean
- *                       tutor_id:
- *                         type: integer
- *                       name:
+ *                       pet_name:
  *                         type: string
- *                       image_path:
+ *                       tutor_name:
  *                         type: string
- *                         nullable: true
- *                       birth_date:
- *                         type: string
- *                         format: date-time
- *                       species:
- *                         type: string
- *                       animal_type:
- *                         type: string
- *                       fur_type:
- *                         type: string
- *                       email:
- *                         type: string
- *                       phone:
- *                         type: string
- *                       organization_id:
- *                         type: integer
  *                 pagination:
  *                   $ref: '#/components/schemas/PaginatedResponse'
  *             example:
@@ -714,24 +646,16 @@ router.get('/:id/recommendations/booking', validatePagination, petController.get
  *                   mandatory: false
  *                   suggested_date: "2026-01-03T03:00:00.000Z"
  *                   ignore_recommendation: false
- *                   dcreated: "2025-11-03T20:10:22.337Z"
- *                   dlastupdate: "2025-11-03T20:10:22.337Z"
+ *                   dcreated: "2025-11-03T20:12:38.057Z"
+ *                   dlastupdate: "2025-11-03T20:12:38.057Z"
  *                   nenabled: true
- *                   tutor_id: 1
- *                   name: "Ana Carolina"
- *                   image_path: null
- *                   birth_date: "2025-11-03T03:00:00.000Z"
- *                   species: "Cão"
- *                   animal_type: "Golden Retriever"
- *                   fur_type: "Longo"
- *                   email: "ana.carolina@email.com"
- *                   phone: "55 91234-5678"
- *                   organization_id: 1
+ *                   pet_name: "Bidu"
+ *                   tutor_name: "Ana Carolina"
+
  *               pagination:
- *                 totalItems: 5
- *                 totalPages: 1
- *                 currentPage: "1"
- *                 pageSize: "10"
+ *                 page: 1
+ *                 pageSize: 10
+ *                 total: 5
  *       404:
  *         description: The pet was not found.
  *       500:

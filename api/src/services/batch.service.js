@@ -11,10 +11,10 @@ const startJobAsync = async (jobName) => {
     const command = getAllowedCommand(jobName);
     const targetTable = getTableByJobName(jobName);
 
-    const [runningJob] = await batchRepository.find({
+    const [runningJob] = await knex(batchRepository.tableName).where({
         target_table: targetTable,
         status: batch_codes.RUNNING,
-    }).where('start_time', '>', get_timeout());
+    }).andWhere('start_time', '>', get_timeout());
 
     if (runningJob) {
         return { message: 'Job is already running', job: runningJob };

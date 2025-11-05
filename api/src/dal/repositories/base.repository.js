@@ -83,8 +83,8 @@ class BaseRepository {
         return {
             data,
             pagination: {
-                page,
-                pageSize,
+                page: parseInt(page),
+                pageSize: parseInt(pageSize, 0),
                 total: parseInt(count, 10),
             },
         };

@@ -128,10 +128,9 @@ router.post('/', apiKeyController.createAsync);
  *                   dlastupdate: "2025-11-03T20:10:22.337Z"
  *                   nenabled: true
  *               pagination:
- *                 totalItems: 1
- *                 totalPages: 1
- *                 currentPage: "1"
- *                 pageSize: "10"
+ *                 page: 1
+ *                 pageSize: 10
+ *                 total: 1
  *       400:
  *         description: Erro de validação
  *         content:

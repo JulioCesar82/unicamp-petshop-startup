@@ -395,28 +395,8 @@ router.post('/notify-all', tutorController.notifyAllTutorsAsync);
  *                         format: date-time
  *                       nenabled:
  *                         type: boolean
- *                       tutor_id:
- *                         type: integer
- *                       name:
+ *                       pet_name:
  *                         type: string
- *                       image_path:
- *                         type: string
- *                         nullable: true
- *                       birth_date:
- *                         type: string
- *                         format: date-time
- *                       species:
- *                         type: string
- *                       animal_type:
- *                         type: string
- *                       fur_type:
- *                         type: string
- *                       email:
- *                         type: string
- *                       phone:
- *                         type: string
- *                       organization_id:
- *                         type: integer
  *                 pagination:
  *                   $ref: '#/components/schemas/PaginatedResponse'
  *             example:
@@ -426,24 +406,14 @@ router.post('/notify-all', tutorController.notifyAllTutorsAsync);
  *                   suggested_date: "2025-11-09T03:00:00.000Z"
  *                   average_frequency_days: 5
  *                   ignore_recommendation: false
- *                   dcreated: "2025-11-03T20:10:22.337Z"
- *                   dlastupdate: "2025-11-03T20:10:22.337Z"
+ *                   dcreated: "2025-11-03T20:41:19.914Z"
+ *                   dlastupdate: "2025-11-03T20:41:19.914Z"
  *                   nenabled: true
- *                   tutor_id: 1
- *                   name: "Ana Carolina"
- *                   image_path: null
- *                   birth_date: "2025-11-03T03:00:00.000Z"
- *                   species: "Cão"
- *                   animal_type: "Golden Retriever"
- *                   fur_type: "Longo"
- *                   email: "ana.carolina@email.com"
- *                   phone: "55 91234-5678"
- *                   organization_id: 1
+ *                   pet_name: "Bidu"
  *               pagination:
- *                 totalItems: 1
- *                 totalPages: 1
- *                 currentPage: "1"
- *                 pageSize: "10"
+ *                 page: 1
+ *                 pageSize: 10
+ *                 total: 1
  *       400:
  *         description: Bad request
  */
@@ -512,28 +482,8 @@ router.get('/:id/booking-recommendations', validatePagination, tutorController.g
  *                         format: date-time
  *                       nenabled:
  *                         type: boolean
- *                       tutor_id:
- *                         type: integer
- *                       name:
+ *                       pet_name:
  *                         type: string
- *                       image_path:
- *                         type: string
- *                         nullable: true
- *                       birth_date:
- *                         type: string
- *                         format: date-time
- *                       species:
- *                         type: string
- *                       animal_type:
- *                         type: string
- *                       fur_type:
- *                         type: string
- *                       email:
- *                         type: string
- *                       phone:
- *                         type: string
- *                       organization_id:
- *                         type: integer
  *                 pagination:
  *                   $ref: '#/components/schemas/PaginatedResponse'
  *             example:
@@ -544,26 +494,16 @@ router.get('/:id/booking-recommendations', validatePagination, tutorController.g
  *                   vaccine_name: "Aplicação de Microchip"
  *                   description: "Registro de aplicação de microchip de identificação."
  *                   mandatory: false
- *                   suggested_date: "2026-01-03T00:00:00.000Z"
+ *                   suggested_date: "2026-01-03T03:00:00.000Z"
  *                   ignore_recommendation: false
- *                   dcreated: "2025-11-03T20:10:22.337Z"
- *                   dlastupdate: "2025-11-03T20:10:22.337Z"
+ *                   dcreated: "2025-11-03T20:12:38.057Z"
+ *                   dlastupdate: "2025-11-03T20:12:38.057Z"
  *                   nenabled: true
- *                   tutor_id: 1
- *                   name: "Ana Carolina"
- *                   image_path: null
- *                   birth_date: "2025-11-03T00:00:00.000Z"
- *                   species: "Cão"
- *                   animal_type: "Golden Retriever"
- *                   fur_type: "Longo"
- *                   email: "ana.carolina@email.com"
- *                   phone: "55 91234-5678"
- *                   organization_id: 1
+ *                   pet_name: "Bidu"
  *               pagination:
- *                 totalItems: 5
- *                 totalPages: 1
- *                 currentPage: "1"
- *                 pageSize: "10"
+ *                 page: 1
+ *                 pageSize: 10
+ *                 total: 5
  *       400:
  *         description: Bad request
  */

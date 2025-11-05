@@ -1,5 +1,7 @@
 const util = require('util');
 const petRepository = require('../repositories/postgres/pet.repository');
+const bookingRecommendationRepository = require('../repositories/postgres/bookingRecommendation.repository');
+const vaccineRecommendationRepository = require('../repositories/postgres/vaccineRecommendation.repository');
 const knex = require('../dal/query-builder/knex');
 const { client } = require('../providers/storage');
 const createUpload = require('../config/upload-multipart-form-data');
@@ -44,7 +46,10 @@ const uploadImageAsync = async (req, res, organizationId) => {
 };
 
 const updateRecommendationAsync = async (petId, ignore, organizationId) => {
-    // Placeholder for business logic
+    const pet = await petRepository.findById(petId);
+    if (!pet || pet.organization_id !== organizationId) {
+        return null;
+    }
     return petRepository.update(petId, { ignore_recommendation: ignore });
 };
 
@@ -81,8 +86,8 @@ const getBookingRecommendationsAsync = async ({ petIds, organizationId, page, pa
     return {
         data,
         pagination: {
-            page,
-            pageSize,
+            page: parseInt(page),
+            pageSize: parseInt(pageSize, 0),
             total: parseInt(count, 10),
         },
     };
@@ -121,21 +126,27 @@ const getVaccineRecommendationsAsync = async ({ petIds, organizationId, page, pa
     return {
         data,
         pagination: {
-            page,
-            pageSize,
+            page: parseInt(page),
+            pageSize: parseInt(pageSize, 0),
             total: parseInt(count, 10),
         },
     };
 };
 
 const disableBookingRecommendationAsync = async (petId, organizationId) => {
-    // Placeholder for business logic
-    return Promise.resolve();
+    const pet = await petRepository.findById(petId);
+    if (!pet || pet.organization_id !== organizationId) {
+        return null;
+    }
+    return bookingRecommendationRepository.softDelete({ pet_id: petId });
 };
 
 const disableVaccineRecommendationAsync = async (petId, vaccineName, organizationId) => {
-    // Placeholder for business logic
-    return Promise.resolve();
+    const pet = await petRepository.findById(petId);
+    if (!pet || pet.organization_id !== organizationId) {
+        return null;
+    }
+    return vaccineRecommendationRepository.softDelete({ pet_id: petId, vaccine_name: vaccineName });
 };
 
 module.exports = {
