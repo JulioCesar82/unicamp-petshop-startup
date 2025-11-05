@@ -1,4 +1,4 @@
-FROM node:lts-slim as base
+FROM node:22-slim
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -34,7 +34,7 @@ RUN apt-get update && \
     gpg --dearmor -o /usr/share/keyrings/postgresql.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
 
-# # Instalar PostgreSQL
+# Instalar PostgreSQL
 # RUN apt-get update && \
 #     apt-get install -y \
 #     postgresql-17 \
