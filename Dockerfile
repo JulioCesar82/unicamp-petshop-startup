@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:10 as base
+FROM node:lts-slim as base
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
