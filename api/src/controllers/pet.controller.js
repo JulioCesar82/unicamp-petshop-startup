@@ -12,7 +12,7 @@ const findPetsByCriteriaAsync = catchAsync(async (req, res) => {
     }
 
     const { page, pageSize, ...criteria } = req.query;
-    const pets = await petRepository.findPetsByCriteriaAsync(criteria, req.organization_id, page, pageSize);
+    const pets = await petService.findPetsByCriteriaAsync({ filters: criteria, organizationId: req.organization_id, page, pageSize });
 
     res.status(statusCodes.OK).send(pets);
 });
@@ -29,7 +29,7 @@ const uploadImageAsync = catchAsync(async (req, res) => {
 
 const updateRecommendationAsync = catchAsync(async (req, res) => {
     const { id, ignore } = req.body;
-    const pet = await petRepository.updateRecommendationAsync(id, ignore, req.organization_id);
+    const pet = await petService.updateRecommendationAsync(id, ignore, req.organization_id);
 
     if (pet) {
         res.status(statusCodes.OK).send(pet);
@@ -41,7 +41,7 @@ const updateRecommendationAsync = catchAsync(async (req, res) => {
 const getBookingRecommendationsAsync = catchAsync(async (req, res) => {
     const { id } = req.params;
     const { page, pageSize } = req.query;
-    const recommendations = await petRepository.getBookingRecommendationsAsync(id, req.organization_id, page, pageSize);
+    const recommendations = await petService.getBookingRecommendationsAsync({ petIds: id, organizationId: req.organization_id, page, pageSize });
 
     res.status(statusCodes.OK).send(recommendations);
 });
@@ -49,21 +49,21 @@ const getBookingRecommendationsAsync = catchAsync(async (req, res) => {
 const getVaccineRecommendationsAsync = catchAsync(async (req, res) => {
     const { id } = req.params;
     const { page, pageSize } = req.query;
-    const recommendations = await petRepository.getVaccineRecommendationsAsync(id, req.organization_id, page, pageSize);
+    const recommendations = await petService.getVaccineRecommendationsAsync({ petIds: id, organizationId: req.organization_id, page, pageSize });
 
     res.status(statusCodes.OK).send(recommendations);
 });
 
 const disableBookingRecommendationAsync = catchAsync(async (req, res) => {
     const { id } = req.params;
-    await petRepository.disableBookingRecommendationAsync(id, req.organization_id);
+    await petService.disableBookingRecommendationAsync(id, req.organization_id);
 
     res.status(statusCodes.NO_CONTENT).send();
 });
 
 const disableVaccineRecommendationAsync = catchAsync(async (req, res) => {
     const { id, vaccineName } = req.params;
-    await petRepository.disableVaccineRecommendationAsync(id, vaccineName, req.organization_id);
+    await petService.disableVaccineRecommendationAsync(id, vaccineName, req.organization_id);
 
     res.status(statusCodes.NO_CONTENT).send();
 });

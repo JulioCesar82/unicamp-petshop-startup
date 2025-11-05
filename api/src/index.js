@@ -8,6 +8,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Request logging (logs timestamp, method, url, ip, response status and duration)
+const requestLogger = require('./middleware/requestLogger');
+app.use(requestLogger);
+
 const { swaggerUi, specs } = require('./config/swaggerConfig');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
@@ -20,8 +24,19 @@ app.get('/', (req, res) => {
   res.redirect('/api-docs');
 });
 
-const routes = require('./routes');
-app.use('/api', routes);
+// Lazy-load routes to avoid executing route/module initialization at app startup.
+// The first incoming request to /api will require the routes and cache them.
+let routes;
+app.use('/api', (req, res, next) => {
+  try {
+    if (!routes) {
+      routes = require('./routes');
+    }
+    return routes(req, res, next);
+  } catch (err) {
+    return next(err);
+  }
+});
 
 const errorHandler = require('./middleware/errorHandler');
 app.use(errorHandler);

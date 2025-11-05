@@ -1,4 +1,3 @@
-const batchRepository = require('../repositories/postgres/batch.repository');
 const batchService = require('../services/batch.service');
 const catchAsync = require('../utils/catchAsync');
 const { statusCodes } = require('../config/general');
@@ -17,25 +16,25 @@ exports.startJobAsync = catchAsync(async (req, res) => {
 
     const result = await batchService.startJobAsync(entity);
 
-    res.status(statusCodes.OK).send(result);
+    res.status(statusCodes.ACCEPTED).send(result);
 });
 
 exports.getJobStatusAsync = catchAsync(async (req, res) => {
     const { id } = req.params;
-    const result = await batchRepository.getJobStatusAsync(id);
+    const result = await batchService.getJobStatusAsync(id);
    
     res.status(statusCodes.OK).send(result);
 });
 
 exports.getJobResultAsync = catchAsync(async (req, res) => {
     const { id } = req.params;
-    const result = await batchRepository.getJobResultAsync(id);
+    const result = await batchService.getJobResultAsync(id);
    
     res.status(statusCodes.OK).send(result);
 });
 
 exports.getLTVByPetProfileAsync = catchAsync(async (req, res) => {
-    const result = await batchRepository.getLTVByPetProfileAsync();
+    const result = await batchService.getLTVByPetProfileAsync();
   
     res.status(statusCodes.OK).send(result);
 });

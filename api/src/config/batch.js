@@ -17,9 +17,12 @@ const table_by_job = new Map([
 
 const allowed_jobs = new Set(allowed_commands.keys());
 
+const job_by_table = new Map([...table_by_job.entries()].map(([job, table]) => [table, job]));
+
 module.exports = {
     allowed_commands,
     allowed_jobs,
     table_by_job,
+    job_by_table,
     get_timeout: () => new Date(Date.now() - 10 * 60 * 1000) // ten minutes
 };
