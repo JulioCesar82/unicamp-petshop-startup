@@ -28,10 +28,10 @@ Um laboratório para aprendizado de Hadoop, Redis e PostgreSQL para Pets.
 Usando recursos da Binder:
 
 <!-- 
-[![Binder a partir da imagem Docker pronta](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fhub.docker.com%2Fr%2Fjulio471%2Fjupter-hadoop-pets/master?urlpath=lab/tree)
+[![Binder a partir da imagem Docker pronta](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/git/https%3A%2F%2Fhub.docker.com%2Fr%2Fjulio471%2Fjupter-hadoop-pets/main?urlpath=lab/tree)
 -->
 
-[![Binder a partir do Dockerfile-jupter](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/JulioCesar82/unicamp-petshop-startup/master?urlpath=/)
+[![Binder a partir do Dockerfile-jupter](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/JulioCesar82/unicamp-petshop-startup/main?urlpath=/)
 
 
 ou então Localmente (mais recomendado via DockerHub):
