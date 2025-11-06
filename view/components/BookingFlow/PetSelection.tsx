@@ -41,7 +41,7 @@ export const PetSelection: React.FC<PetSelectionProps> = ({
             className={`pet-card ${selectedPetId === pet.pet_id ? 'selected' : ''}`}
             onClick={() => handleEditPet(pet.pet_id)} // Changed to call handleEditPet
           >
-            <img src={pet.image_path || '/public/icon-pet.png'} alt={pet.name} className="pet-photo" />
+            <img src={pet.image_path || 'icon-pet.png'} alt={pet.name} className="pet-photo" />
             <h4>{pet.name}</h4>
             <p>{pet.animal_type}</p>
           </div>

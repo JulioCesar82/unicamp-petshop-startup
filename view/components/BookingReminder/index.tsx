@@ -29,7 +29,7 @@ export const BookingReminder: React.FC<BookingReminderProps> = ({
 
   const getPetPhoto = (petId: string | number) => {
     const pet = pets.find(p => p.id === petId);
-    return pet?.image_path || '/public/icon-pet.png'; // Default icon if no photo
+    return pet?.image_path || 'icon-pet.png'; // Default icon if no photo
   };
 
   const getRecommendationIcon = (type: 'vaccine' | 'booking', serviceName?: string) => {
