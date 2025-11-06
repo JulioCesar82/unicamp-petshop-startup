@@ -87,7 +87,7 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit, petToEdit, onBack }
           <input
             type="text"
             value={formData.animal_type || ''}
-            onChange={e => setFormData(prev => ({ ...prev, breed: e.target.value }))}
+            onChange={e => setFormData(prev => ({ ...prev, animal_type: e.target.value }))}
             required
           />
         </div>
@@ -100,7 +100,7 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit, petToEdit, onBack }
                 type="radio"
                 name="furType"
                 checked={formData.fur_type === 'Pequeno'}
-                onChange={() => setFormData(prev => ({ ...prev, furType: 'Pequeno' }))}
+                onChange={() => setFormData(prev => ({ ...prev, fur_type: 'Pequeno' }))}
               />
               Peq.
             </label>
@@ -109,7 +109,7 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit, petToEdit, onBack }
                 type="radio"
                 name="furType"
                 checked={formData.fur_type === 'Médio'}
-                onChange={() => setFormData(prev => ({ ...prev, furType: 'Médio' }))}
+                onChange={() => setFormData(prev => ({ ...prev, fur_type: 'Médio' }))}
               />
               Méd.
             </label>
@@ -118,7 +118,7 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit, petToEdit, onBack }
                 type="radio"
                 name="furType"
                 checked={formData.fur_type === 'Longo'}
-                onChange={() => setFormData(prev => ({ ...prev, furType: 'Longo' }))}
+                onChange={() => setFormData(prev => ({ ...prev, fur_type: 'Longo' }))}
               />
               Grande
             </label>
