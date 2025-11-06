@@ -47,7 +47,7 @@ RUN apt-get update && \
 
 # Definir variáveis de ambiente para Java e Hadoop
 # ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-# ENV HADOOP_VERSION=3.4.2
+# ENV HADOOP_VERSION=2.9.2
 # ENV SQOOP_VERSION=1.4.7
 # ENV HADOOP_HOME=/usr/local/hadoop
 # ENV SQOOP_HOME=/usr/local/sqoop

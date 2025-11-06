@@ -61,19 +61,6 @@ export const BookingReminder: React.FC<BookingReminderProps> = ({
     onSchedule();
   };
 
-  if (showBookingFlow) {
-    return (
-      <BookingFlow 
-        petRecommendations={petRecommendations}
-        onClose={() => {
-          setShowBookingFlow(false);
-          onClose();
-        }}
-        onSchedule={onSchedule}
-      />
-    );
-  }
-
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -137,6 +124,17 @@ export const BookingReminder: React.FC<BookingReminderProps> = ({
           </div>
         </div>
       </div>
+      {showBookingFlow && (
+        <BookingFlow 
+          petRecommendations={petRecommendations}
+          onClose={() => {
+            setShowBookingFlow(false);
+            onClose();
+          }}
+          onSchedule={onSchedule}
+          mockGetAvailableSlots={true}
+        />
+      )}
     </div>
   );
 };

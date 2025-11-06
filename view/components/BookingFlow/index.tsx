@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import './styles.css';
 import { useBooking } from './useBooking';
 import { StepIndicator } from './StepIndicator';
-import { PetSelection } from './PetSelection'; // Renamed from PetRegistration
+import { PetSelection } from './PetSelection';
+import { PetRegistration } from './PetRegistration'; // Import PetRegistration
+import { PetManagement } from './PetManagement'; // Import PetManagement
 import { RecommendationSelection } from './RecommendationSelection'; // New component
 import { DateSelection } from './DateSelection';
 import { Confirmation } from './Confirmation';
@@ -14,9 +15,13 @@ import { Pet, Service, PetRecommendation, VaccineRecommendation, BookingRecommen
 import { useRepositories } from '../../contexts/RepositoryContext';
 import { useRecommendations } from '../../contexts/RecommendationContext';
 
+import './styles.css';
+
 interface BookingFlowProps {
   onClose: () => void;
   petRecommendations: PetRecommendation[];
+  // Optional prop to enable mocking for GetAvailableSlots
+  mockGetAvailableSlots?: boolean;
 }
 
 // Helper function to parse duration string to minutes
@@ -34,13 +39,12 @@ function parseDurationToMinutes(duration: string): number {
   return 60;
 }
 
-export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, petRecommendations }) => {
+export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, petRecommendations, mockGetAvailableSlots }) => {
   const { bookingRepository, serviceRepository, availabilityRepository } = useRepositories();
   const { dismissRecommendation, snoozeRecommendation } = useRecommendations();
 
   const createBookingUseCase = React.useMemo(() => new CreateBooking(bookingRepository), [bookingRepository]);
   const getServicesUseCase = React.useMemo(() => new GetServices(serviceRepository), [serviceRepository]);
-  const getAvailableSlotsUseCase = React.useMemo(() => new GetAvailableSlots(availabilityRepository), [availabilityRepository]);
 
   const {
     currentStep,
@@ -58,10 +62,10 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, petRecommenda
     setSelectedDate,
     setSelectedTime,
     setSelectedRecommendations,
-  } = useBooking(createBookingUseCase, { onComplete: onClose, initialStep: 1 });
+    setCurrentStep,
+  } = useBooking(createBookingUseCase, { onComplete: onClose, initialStep: 2 });
 
   const [services, setServices] = useState<Service[]>([]);
-  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
 
   useEffect(() => {
     getServicesUseCase.execute().then(setServices);
@@ -72,17 +76,6 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, petRecommenda
       setSelectedDate(new Date());
     }
   }, [currentStep, selectedDate, setSelectedDate]);
-
-  useEffect(() => {
-    console.log('Selected Date or Service changed:', selectedDate, selectedService);
-    if (selectedDate && selectedService) {
-      const durationInMinutes = parseDurationToMinutes(selectedService.duration);
-      console.log('Fetching available slots for date:', selectedDate, 'with duration:', durationInMinutes);
-
-      getAvailableSlotsUseCase.execute(selectedDate, durationInMinutes)
-        .then(setAvailableSlots);
-    }
-  }, [selectedDate, selectedService, getAvailableSlotsUseCase]);
 
   const handleCompleteBooking = async () => {
     await complete();
@@ -110,14 +103,22 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, petRecommenda
     onClose();
   };
 
-  let isNextButtonDisabled = false;
-  if (currentStep === 1) {
-    isNextButtonDisabled = !petData;
-  } else if (currentStep === 2) {
-    isNextButtonDisabled = selectedRecommendations.length === 0;
-  } else if (currentStep === 3) {
-    isNextButtonDisabled = !selectedDate || !selectedTime;
-  }
+    let isNextButtonDisabled = false;
+    // if (currentStep === 1) {
+    //   isNextButtonDisabled = !petData;
+    // }
+    if (currentStep === 2) {
+      isNextButtonDisabled = selectedRecommendations.length === 0;
+    } else if (currentStep === 3) {
+      isNextButtonDisabled = !selectedDate || !selectedTime;
+    }
+  const handleBack = () => {
+    if (currentStep === 1 && !petData) {
+      onClose();
+    } else {
+      back();
+    }
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -132,21 +133,15 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, petRecommenda
 
         <div className="booking-flow-content">
           {currentStep === 1 && (
-            <PetSelection
-              petRecommendations={petRecommendations}
-              onSelectPet={(pet) => {
-                setPetData(pet);
-                next();
-              }}
-            />
+            <PetManagement />
           )}
 
           {currentStep === 2 && (
             <RecommendationSelection
               petRecommendations={petRecommendations}
-              selectedPetId={petData?.id}
               selectedRecommendations={selectedRecommendations}
               onSelectRecommendations={setSelectedRecommendations}
+              setCurrentStep={setCurrentStep}
             />
           )}
 
@@ -159,13 +154,14 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, petRecommenda
               onConfirm={next}
               selectedDate={selectedDate}
               selectedTime={selectedTime}
-              availableSlots={availableSlots}
+              selectedRecommendations={selectedRecommendations}
+              mockGetAvailableSlots={mockGetAvailableSlots}
             />
           )}
 
           {currentStep === 4 && (
             <Confirmation
-              petName={petData?.name || ''}
+              petRecommendations={petRecommendations}
               date={selectedDate!}
               time={selectedTime!}
               selectedRecommendations={selectedRecommendations}
@@ -175,11 +171,11 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({ onClose, petRecommenda
         </div>
 
         <div className="booking-flow-footer">
-          {currentStep > 1 && (
-            <button className="secondary-button" onClick={back}>
+          {currentStep > 1 ? (
+            <button className="secondary-button" onClick={handleBack}>
               Voltar
             </button>
-          )}
+          ) : null}
 
           <button
             className="primary-button"

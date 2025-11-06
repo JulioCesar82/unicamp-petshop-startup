@@ -1,22 +1,40 @@
 import React from 'react';
-import { PetRecommendation, VaccineRecommendation, BookingRecommendation } from '../../domain/entities';
-import { useUser } from '../../contexts/UserContext';
+import { PetRecommendation, VaccineRecommendation, BookingRecommendation, Pet } from '../../domain/entities';
 import { useRepositories } from '../../contexts/RepositoryContext';
-
 interface RecommendationSelectionProps {
   petRecommendations: PetRecommendation[];
-  selectedPetId?: string | number | null;
   selectedRecommendations: (VaccineRecommendation | BookingRecommendation)[];
   onSelectRecommendations: (recs: (VaccineRecommendation | BookingRecommendation)[]) => void;
+  setCurrentStep: (step: number) => void;
 }
+
+const getPetPhoto = (pet: Pet) => {
+  return pet?.image_path || '/public/icon-pet.png'; // Default icon if no photo
+};
+
+const getRecommendationIcon = (type: 'vaccine' | 'booking', serviceName?: string) => {
+  if (type === 'vaccine') {
+    return <i className="fas fa-syringe"></i>; // Syringe icon for vaccines
+  } else if (type === 'booking') {
+    // Customize icons based on serviceName if needed
+    if (serviceName?.toLowerCase().includes('banho')) return <i className="fas fa-bath"></i>;
+    if (serviceName?.toLowerCase().includes('tosa')) return <i className="fas fa-cut"></i>;
+    if (serviceName?.toLowerCase().includes('consulta')) return <i className="fas fa-stethoscope"></i>;
+    return <i className="fas fa-paw"></i>; // Default paw icon for other bookings
+  }
+  return null;
+};
+
+const getRecommendationUniqueKey = (petId: string | number, type: 'vaccine' | 'booking', recId: string | number) => {
+  return `${petId}-${type}-${recId}`;
+};
 
 export const RecommendationSelection: React.FC<RecommendationSelectionProps> = ({
   petRecommendations,
-  selectedPetId,
   selectedRecommendations,
   onSelectRecommendations,
+  setCurrentStep,
 }) => {
-  const { pets } = useUser();
   const { serviceRepository } = useRepositories();
   const [services, setServices] = React.useState<Record<string | number, string>>({});
 
@@ -37,55 +55,92 @@ export const RecommendationSelection: React.FC<RecommendationSelectionProps> = (
       }
       setServices(serviceMap);
     };
-    fetchServiceNames();
+    // fetchServiceNames();
   }, [petRecommendations, serviceRepository]);
 
-  const currentPetRecs = petRecommendations.find(pr => pr.pet.id === selectedPetId);
-  const pet = pets.find(p => p.id === selectedPetId);
+  const handleToggleRecommendation = (petId: string | number, type: 'vaccine' | 'booking', identification: number, rec: VaccineRecommendation | BookingRecommendation) => {
+    const uniqueKey = getRecommendationUniqueKey(petId, type, identification);
+    const isSelected = selectedRecommendations.some(
+      (selectedRec) => getRecommendationUniqueKey(selectedRec.pet_id, selectedRec.vaccine_recommendation_id ? 'vaccine' : 'booking', selectedRec.vaccine_recommendation_id || selectedRec.booking_recommendation_id
+      ) === uniqueKey
+    );
 
-  if (!currentPetRecs || !pet) {
-    return <p>Selecione um pet para ver as recomendações.</p>;
-  }
-
-  const allRecsForPet = [
-    ...currentPetRecs.vaccineRecommendations.map(rec => ({ ...rec, type: 'vaccine' as const })),
-    ...currentPetRecs.bookingRecommendations.map(rec => ({ ...rec, type: 'booking' as const, serviceName: services[rec.serviceId] })),
-  ];
-
-  const handleToggleRecommendation = (rec: VaccineRecommendation | BookingRecommendation) => {
-    onSelectRecommendations(prev => {
-      if (prev.some(r => r.id === rec.id)) {
-        return prev.filter(r => r.id !== rec.id);
-      } else {
-        return [...prev, rec];
-      }
-    });
-  };
-
-  const getRecommendationTitle = (rec: VaccineRecommendation | BookingRecommendation, type: 'vaccine' | 'booking') => {
-    if (type === 'vaccine') {
-      return (rec as VaccineRecommendation).vaccineName;
+    let newSelection;
+    if (isSelected) {
+      newSelection = selectedRecommendations.filter(
+        (selectedRec) => getRecommendationUniqueKey(selectedRec.pet_id, selectedRec.vaccine_recommendation_id ? 'vaccine' : 'booking', selectedRec.vaccine_recommendation_id || selectedRec.booking_recommendation_id
+        ) !== uniqueKey
+      );
     } else {
-      return services[(rec as BookingRecommendation).serviceId] || 'Serviço Desconhecido';
+      newSelection = [...selectedRecommendations, rec];
     }
+    onSelectRecommendations(newSelection);
   };
 
   return (
     <div className="recommendation-selection">
-      <h3>Recomendações para {pet.name}</h3>
+      <h3>Selecione as recomendações para agendar</h3>
       <div className="recommendation-list">
-        {allRecsForPet.map((rec) => (
-          <div
-            key={rec.id}
-            className={`recommendation-item ${selectedRecommendations.some(r => r.id === rec.id) ? 'selected' : ''}`}
-            onClick={() => handleToggleRecommendation(rec)}
-          >
-            <input
-              type="checkbox"
-              checked={selectedRecommendations.some(r => r.id === rec.id)}
-              onChange={() => handleToggleRecommendation(rec)}
-            />
-            <span>{getRecommendationTitle(rec, rec.type)}</span>
+        {petRecommendations.map((petRec, petIndex) => (
+          <div key={petRec.pet.id ? petRec.pet.id : `pet-idx-${petIndex}`} className="pet-recommendation">
+            <div className="pet-header">
+              <img src={getPetPhoto(petRec.pet)} alt={petRec.pet.name} className="pet-photo" />
+              <h4>{petRec.pet.name} ({petRec.pet.animal_type})</h4>
+            </div>
+            {
+              petRec.vaccineRecommendations.map((rec, index) => (
+                <div
+                  key={getRecommendationUniqueKey(rec.pet_id, 'vaccine', rec.vaccine_recommendation_id || `idx-${index}`)}
+                  className={`recommendation-item ${selectedRecommendations.some(
+                    (selectedRec) => getRecommendationUniqueKey(selectedRec.pet_id, 'vaccine', selectedRec.vaccine_recommendation_id
+                    ) === getRecommendationUniqueKey(rec.pet_id, 'vaccine', rec.vaccine_recommendation_id)
+                  ) ? 'selected' : ''}`
+                  }
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedRecommendations.some(
+                      (selectedRec) => getRecommendationUniqueKey(selectedRec.pet_id, 'vaccine', selectedRec.vaccine_recommendation_id
+                      ) === getRecommendationUniqueKey(rec.pet_id, 'vaccine', rec.vaccine_recommendation_id)
+                    )}
+                    onChange={() => handleToggleRecommendation(petRec.pet.pet_id, 'vaccine', rec.vaccine_recommendation_id, rec)}
+                  />
+                  {getRecommendationIcon('vaccine')}
+                  <strong className='recommendation-item-name'>{rec.vaccine_name}</strong>
+                  <br />
+                  <small>Data recomendada: {new Date(rec.suggested_date).toLocaleDateString('pt-BR')}</small>
+                  <br />
+                  <small>{rec.reason}</small>
+                </div>
+              ))
+            }
+            {
+              petRec.bookingRecommendations.map((rec, index) => (
+                <div
+                  key={getRecommendationUniqueKey(rec.pet_id, 'booking', rec.booking_recommendation_id || `idx-${index}`)}
+                  className={`recommendation-item ${selectedRecommendations.some(
+                    (selectedRec) => getRecommendationUniqueKey(selectedRec.pet_id, 'booking', selectedRec.booking_recommendation_id
+                    ) === getRecommendationUniqueKey(rec.pet_id, 'booking', rec.booking_recommendation_id)
+                  ) ? 'selected' : ''}`
+                  }
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedRecommendations.some(
+                      (selectedRec) => getRecommendationUniqueKey(selectedRec.pet_id, 'booking', selectedRec.booking_recommendation_id
+                      ) === getRecommendationUniqueKey(rec.pet_id, 'booking', rec.booking_recommendation_id)
+                    )}
+                    onChange={() => handleToggleRecommendation(petRec.pet.pet_id, 'booking', rec.booking_recommendation_id, rec)}
+                  />
+                  {getRecommendationIcon('booking', services[rec.serviceId])}
+                  <strong className='recommendation-item-name'>{services[rec.serviceId] || 'Serviço Desconhecido'}</strong>
+                  <br />
+                  <small>Data recomendada: {new Date(rec.suggested_date).toLocaleDateString('pt-BR')}</small>
+                  <br />
+                  <small>{rec.reason}</small>
+                </div>
+              ))
+            }
           </div>
         ))}
       </div>

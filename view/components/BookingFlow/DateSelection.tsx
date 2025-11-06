@@ -1,23 +1,43 @@
 import React from 'react';
 import './DateSelection.css';
+import { GetAvailableSlots } from '../../application/GetAvailableSlots';
+import { useRepositories } from '../../contexts/RepositoryContext';
+import { Service, VaccineRecommendation, BookingRecommendation } from '../../domain/entities';
 
 interface Props {
   onSelect: (date: Date, time: string) => void;
   selectedDate?: Date | null;
   selectedTime?: string | null;
-  availableSlots: string[];
+  mockGetAvailableSlots?: boolean;
+  selectedRecommendations: (VaccineRecommendation | BookingRecommendation)[];
   onConfirm: () => void;
 }
 
-export const DateSelection: React.FC<Props> = ({ onSelect, selectedDate, selectedTime, availableSlots }) => {
+export const DateSelection: React.FC<Props> = ({ onSelect, selectedDate, selectedTime, mockGetAvailableSlots, selectedRecommendations }) => {
+  const { availabilityRepository } = useRepositories();
   const [tempDate, setTempDate] = React.useState<Date | null>(selectedDate || null);
   const [tempTime, setTempTime] = React.useState<string | null>(selectedTime || null);
+  const [internalAvailableSlots, setInternalAvailableSlots] = React.useState<string[]>([]);
+
+  const getAvailableSlotsUseCase = React.useMemo(() =>
+    new GetAvailableSlots(availabilityRepository, mockGetAvailableSlots),
+    [availabilityRepository, mockGetAvailableSlots]
+  );
 
   React.useEffect(() => {
     if (tempDate && tempTime) {
       onSelect(tempDate, tempTime);
     }
   }, [tempDate, tempTime, onSelect]);
+
+  React.useEffect(() => {
+    if (tempDate && selectedRecommendations.length > 0) {
+      getAvailableSlotsUseCase.execute(tempDate, 60) // Assuming a default duration of 60 minutes
+        .then(setInternalAvailableSlots);
+    } else {
+      setInternalAvailableSlots([]); // Clear slots if no date or duration
+    }
+  }, [tempDate, selectedRecommendations, getAvailableSlotsUseCase]);
 
   const handleDateSelect = (date: Date) => {
     setTempDate(date);
@@ -103,10 +123,10 @@ export const DateSelection: React.FC<Props> = ({ onSelect, selectedDate, selecte
       <div className="time-slots">
         <h3>Horários Disponíveis</h3>
         <div className="slots-grid">
-          {availableSlots.length === 0 ? (
-            <p>Sem horários disponíveis para o serviço selecionado.</p>
+          {internalAvailableSlots.length === 0 ? (
+            <p>Sem horários disponíveis para o dia selecionado.</p>
           ) : (
-            availableSlots.map((time) => (
+            internalAvailableSlots.map((time) => (
               <button
                 key={time}
                 className={`time-slot-button ${tempTime === time ? 'selected' : ''}`}

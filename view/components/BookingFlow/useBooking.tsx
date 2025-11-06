@@ -9,7 +9,7 @@ interface UseBookingOptions {
 
 export function useBooking(createBookingUseCase: CreateBooking, options: UseBookingOptions = {}) {
   const { initialStep = 1, onComplete } = options;
-  const steps = ['Pet', 'Recomendações', 'Agendamento', 'Confirmação']; // Updated steps
+  const steps = ['Cadastro', 'Serviço', 'Agendamento', 'Confirmação'];
   const [currentStep, setCurrentStep] = React.useState<number>(initialStep);
   const [petData, setPetData] = React.useState<Pet | null>(null);
   const [selectedService, setSelectedService] = React.useState<Service | null>(null);
@@ -54,6 +54,7 @@ export function useBooking(createBookingUseCase: CreateBooking, options: UseBook
     setSelectedDate,
     setSelectedTime,
     setSelectedRecommendations,
+    setCurrentStep, // Expose setCurrentStep
   } as const;
 }
 

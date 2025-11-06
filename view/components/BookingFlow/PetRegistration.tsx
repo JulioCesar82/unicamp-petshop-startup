@@ -8,31 +8,58 @@ import './PetRegistration.css';
 
 interface Props {
   onSubmit: (data: Pet) => void;
+  petToEdit?: Pet; // New optional prop for editing
+  onBack: () => void;
 }
 
 const petRepository = new PetRepository();
 
-export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
+export const PetRegistration: React.FC<Props> = ({ onSubmit, petToEdit, onBack }) => {
   const { tutor } = useUser();
-  const [formData, setFormData] = React.useState<Partial<Pet>>({
-    species: 'Cachorro',
-    size: 'small',
-    furType: 'small',
-  });
+  const [formData, setFormData] = React.useState<Partial<Pet>>(
+    petToEdit || {
+      species: 'Cachorro',
+      size: 'small',
+      furType: 'small',
+    }
+  );
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (petToEdit) {
+      setFormData(petToEdit);
+    }
+  }, [petToEdit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.name && formData.breed && formData.birthDate && tutor?.id) {
+    setError(null);
+    setLoading(true);
+    if (formData.name && formData.animal_type && formData.birth_date && tutor?.tutor_id) {
       try {
-        const newPet = await petRepository.createPet({ ...formData, tutorId: tutor.tutor_id } as Omit<Pet, 'id'>);
-        if (formData.photo) {
-          await petRepository.uploadPetImage(newPet.id!, formData.photo);
+        let savedPet: Pet;
+        if (petToEdit && petToEdit.id) {
+          // Update existing pet
+          savedPet = await petRepository.update(petToEdit.id, { ...formData, tutorId: tutor.tutor_id } as Partial<Pet>);
+        } else {
+          // Create new pet
+          savedPet = await petRepository.create({ ...formData, tutorId: tutor.tutor_id } as Omit<Pet, 'id'>);
         }
-        onSubmit(newPet);
-      } catch (error) {
-        console.error("Failed to create pet:", error);
-        // Here you could show an error message to the user
+
+        if (formData.photo) {
+          await petRepository.uploadPetImage(savedPet.id!, formData.photo);
+        }
+        onSubmit(savedPet);
+      } catch (err: any) {
+        console.error("Failed to save pet:", err);
+        setError(err.message || "Erro ao salvar pet.");
+      } finally {
+        setLoading(false);
       }
+    } else {
+      setError("Por favor, preencha todos os campos obrigatórios.");
+      setLoading(false);
     }
   };
 
@@ -59,7 +86,7 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
           <label>Raça:</label>
           <input
             type="text"
-            value={formData.breed || ''}
+            value={formData.animal_type || ''}
             onChange={e => setFormData(prev => ({ ...prev, breed: e.target.value }))}
             required
           />
@@ -72,8 +99,8 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
               <input
                 type="radio"
                 name="furType"
-                checked={formData.furType === 'small'}
-                onChange={() => setFormData(prev => ({ ...prev, furType: 'small' }))}
+                checked={formData.fur_type === 'Pequeno'}
+                onChange={() => setFormData(prev => ({ ...prev, furType: 'Pequeno' }))}
               />
               Peq.
             </label>
@@ -81,8 +108,8 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
               <input
                 type="radio"
                 name="furType"
-                checked={formData.furType === 'medium'}
-                onChange={() => setFormData(prev => ({ ...prev, furType: 'medium' }))}
+                checked={formData.fur_type === 'Médio'}
+                onChange={() => setFormData(prev => ({ ...prev, furType: 'Médio' }))}
               />
               Méd.
             </label>
@@ -90,12 +117,24 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
               <input
                 type="radio"
                 name="furType"
-                checked={formData.furType === 'large'}
-                onChange={() => setFormData(prev => ({ ...prev, furType: 'large' }))}
+                checked={formData.fur_type === 'Longo'}
+                onChange={() => setFormData(prev => ({ ...prev, furType: 'Longo' }))}
               />
               Grande
             </label>
           </div>
+        </div>
+        <div className="form-row">
+          <button type="button" className="photo-upload-button" onClick={() => document.getElementById('photo-upload')?.click()}>
+            Escolher foto
+          </button>
+          <input
+            id="photo-upload"
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoUpload}
+            style={{ display: 'none' }}
+          />
         </div>
       </div>
 
@@ -108,8 +147,8 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
               <input
                 type="radio"
                 name="species"
-                checked={formData.species === 'Cachorro'}
-                onChange={() => setFormData(prev => ({ ...prev, species: 'Cachorro' }))}
+                checked={formData.species === 'Cão'}
+                onChange={() => setFormData(prev => ({ ...prev, species: 'Cão' }))}
               />
               <i className="fas fa-dog"></i> Cão
             </label>
@@ -161,29 +200,17 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit }) => {
           <label>Data nasc.:</label>
           <input
             type="date"
-            value={formData.birthDate ? new Date(formData.birthDate).toISOString().split('T')[0] : ''}
-            onChange={e => setFormData(prev => ({ ...prev, birthDate: new Date(e.target.value) }))}
+            value={formData.birth_date ? new Date(formData.birth_date).toISOString().split('T')[0] : ''}
+            onChange={e => setFormData(prev => ({ ...prev, birth_date: new Date(e.target.value) }))}
             required
           />
         </div>
       </div>
-  
-      <div className="form-row">
-        <button type="button" className="photo-upload-button" onClick={() => document.getElementById('photo-upload')?.click()}>
-          Escolher foto
-        </button>
-        <input
-          id="photo-upload"
-          type="file"
-          accept="image/*"
-          onChange={handlePhotoUpload}
-          style={{ display: 'none' }}
-        />
-      </div>
 
-      <div className="form-row">
-        <button type="submit" className="primary-button">Cadastrar Pet</button>
-      </div>
-    </form>
-  );
+              <button type="button" className="light-button" onClick={onBack} disabled={loading}>Voltar</button>
+              <button type="submit" className="primary-button" disabled={loading}>
+                {loading ? (petToEdit ? 'Atualizando...' : 'Cadastrando...') : (petToEdit ? 'Atualizar Pet' : 'Cadastrar Pet')}
+              </button>
+            {error && <p className="error-message">{error}</p>}
+          </form>  );
 };

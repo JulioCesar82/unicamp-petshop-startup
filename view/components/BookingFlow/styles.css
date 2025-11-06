@@ -89,10 +89,18 @@
 }
 
 /* Pet Selection Styles */
+.pet-selection {
+  text-align: center;
+}
+
 .pet-selection h3 {
   text-align: center;
   margin-bottom: 1.5rem;
   color: #333;
+}
+
+.pet-selection .new-pet-button {
+  margin-top: 1.5rem;
 }
 
 .pet-list {
