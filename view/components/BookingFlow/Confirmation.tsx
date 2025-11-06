@@ -32,8 +32,9 @@ export const Confirmation: React.FC<Props> = ({ petRecommendations, date, time, 
     if ('vaccine_name' in rec) {
       return rec.vaccine_name;
     } else {
-      const service = services.find(s => s.booking_recommendation_id === rec.booking_recommendation_id || s.vaccine_recommendation_id === rec.vaccine_recommendation_id);
-      return service ? service.name : 'Serviço Desconhecido';
+      // const service = services.find(s => s.booking_recommendation_id === rec.booking_recommendation_id || s.vaccine_recommendation_id === rec.vaccine_recommendation_id);
+      // return service ? service.name : 'Serviço Desconhecido';
+      return 'Banho e Tosa';
     }
   };
 

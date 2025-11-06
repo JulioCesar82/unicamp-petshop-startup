@@ -26,7 +26,7 @@
 
 .close-button {
   position: absolute;
-  top: 1rem;
+  top: 0;
   right: 1rem;
   background: none;
   border: none;
@@ -73,6 +73,11 @@
   background: #e65d00;
 }
 
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .secondary-button {
   background: transparent;
   color: #666;
@@ -86,6 +91,11 @@
 .secondary-button:hover {
   color: #333;
   border-color: #666;
+}
+
+.secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Pet Selection Styles */
@@ -283,7 +293,19 @@
   font-weight: 600;
 }
 
-/* Responsive adjustments */
+
+/* Small devices (landscape phones, 576px and up) */
+@media (max-width: 576px) { 
+  .recommendation-item {
+    display: block;
+  }
+
+  .recommendation-item i {
+    margin-right: 5px;
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
 @media (max-width: 768px) {
   .booking-flow-modal {
     padding: 1rem;
@@ -297,4 +319,22 @@
   .primary-button, .secondary-button {
     width: 100%;
   }
+  .reminder-content {
+    flex-direction: column;
+  }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (max-width: 992px) { 
+  
+}
+
+/* X-Large devices (large desktops, 1200px and up) */
+@media (max-width: 1200px) { 
+  
+}
+
+/* XX-Large devices (larger desktops, 1400px and up) */
+@media (max-width: 1400px) { 
+  
 }

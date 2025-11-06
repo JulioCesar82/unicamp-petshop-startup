@@ -207,7 +207,7 @@ export const PetRegistration: React.FC<Props> = ({ onSubmit, petToEdit, onBack }
         </div>
       </div>
 
-              <button type="button" className="light-button" onClick={onBack} disabled={loading}>Voltar</button>
+              <button type="button" className="secondary-button" onClick={onBack} disabled={loading}>Voltar</button>
               <button type="submit" className="primary-button" disabled={loading}>
                 {loading ? (petToEdit ? 'Atualizando...' : 'Cadastrando...') : (petToEdit ? 'Atualizar Pet' : 'Cadastrar Pet')}
               </button>

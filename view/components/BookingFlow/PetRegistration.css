@@ -66,3 +66,14 @@
   background: #e8e8e8;
   color: #333;
 }
+
+/* Small devices (landscape phones, 576px and up) */
+@media (max-width: 576px) { 
+ .pet-registration-form {
+    display: block;
+ }
+
+  .pet-registration-form  button {
+    margin-top: 10px;
+ }
+}
