@@ -21,7 +21,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .close-button {
@@ -47,7 +47,7 @@
 
 .booking-flow-content {
   flex-grow: 1;
-  padding: 1rem 0;
+  /* padding: 1rem 0; */
 }
 
 .booking-flow-footer {
@@ -205,7 +205,7 @@
 /* Date Selection Styles */
 .date-selection h2 {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   color: #333;
 }
 

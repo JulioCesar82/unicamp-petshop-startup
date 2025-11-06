@@ -77,7 +77,7 @@ export const DateSelection: React.FC<Props> = ({ onSelect, selectedDate, selecte
 
   return (
     <div className="date-selection">
-      <h2>Selecione a Data e Horário</h2>
+      <h2>Selecione a Data e Hora</h2>
       
       <div className="calendar">
         <div className="calendar-header">

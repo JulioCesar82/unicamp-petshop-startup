@@ -18,7 +18,6 @@ export const BookingReminder: React.FC<BookingReminderProps> = ({
 }) => {
   const { petRecommendations, loadingRecommendations, dismissRecommendation, snoozeRecommendation } = useRecommendations();
   const { pets } = useUser();
-  const [showBookingFlow, setShowBookingFlow] = React.useState(false);
 
   if (loadingRecommendations) {
     return null; // Or a loading spinner
@@ -57,7 +56,6 @@ export const BookingReminder: React.FC<BookingReminderProps> = ({
   };
 
   const handleSchedule = () => {
-    setShowBookingFlow(true);
     onSchedule();
   };
 
@@ -124,17 +122,6 @@ export const BookingReminder: React.FC<BookingReminderProps> = ({
           </div>
         </div>
       </div>
-      {showBookingFlow && (
-        <BookingFlow 
-          petRecommendations={petRecommendations}
-          onClose={() => {
-            setShowBookingFlow(false);
-            onClose();
-          }}
-          onSchedule={onSchedule}
-          mockGetAvailableSlots={true}
-        />
-      )}
     </div>
   );
 };

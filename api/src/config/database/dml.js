@@ -7,7 +7,7 @@ insert into organization_invite (invite_code, expiration_date) values
 ON CONFLICT (invite_code) DO NOTHING;
 
 insert into organization (name, social_name, description, identification_code, links) values
-('PetCare', 'PetCare Serviços Veterinários Ltda', 'Clínica veterinária especializada em cuidados para pets.', '12345678000199', ARRAY['http://localhost:3000', 'https://juliocesar82.github.io/unicamp-petshop-startup'])
+('PetCare', 'PetCare Serviços Veterinários Ltda', 'Clínica veterinária especializada em cuidados para pets.', '12345678000199', ARRAY['http://localhost:3000', 'https://juliocesar82.github.io'])
 ON CONFLICT (name) DO NOTHING;
 
 insert into organization_apikey (organization_id, api_key) values

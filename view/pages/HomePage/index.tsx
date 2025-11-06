@@ -3,6 +3,7 @@ import React from "react";
 import { Footer } from "../../components/Footer";
 import { Header } from "../../components/Header";
 import { BookingReminder } from "../../components/BookingReminder";
+import { BookingFlow } from "../../components/BookingFlow";
 
 import { useUser } from "../../contexts/UserContext";
 import { useRecommendations } from "../../contexts/RecommendationContext";
@@ -13,6 +14,7 @@ export const HomePage = () => {
   const { tutor, loading: loadingUser } = useUser();
   const { petRecommendations, loadingRecommendations } = useRecommendations();
   const [showReminder, setShowReminder] = React.useState(false);
+  const [showBookingFlowModal, setShowBookingFlowModal] = React.useState(false);
 
   React.useEffect(() => {
     if (!loadingUser && !loadingRecommendations && petRecommendations.length > 0) {
@@ -97,9 +99,17 @@ export const HomePage = () => {
         <BookingReminder
           onClose={() => setShowReminder(false)}
           onSchedule={() => {
-            // Não fechamos o modal aqui para permitir que o fluxo de agendamento seja mostrado
-            console.log('Iniciando fluxo de agendamento...');
+            setShowReminder(false);
+            setShowBookingFlowModal(true);
           }}
+        />
+      )}
+
+      {showBookingFlowModal && (
+        <BookingFlow
+          petRecommendations={petRecommendations}
+          onClose={() => setShowBookingFlowModal(false)}
+          mockGetAvailableSlots={true}
         />
       )}
     </div>
