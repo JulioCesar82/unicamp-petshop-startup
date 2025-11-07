@@ -2,10 +2,11 @@ const knex = require('../query-builder/knex');
 const { default_page, default_page_size } = require('../../config/database');
 
 class BaseRepository {
-    constructor(tableName, primaryKey = `${tableName}_id`, useNenabled = true) {
+    constructor(tableName, primaryKey = `${tableName}_id`, useNenabled = true, useDlastupdate = true) {
         this.tableName = tableName;
         this.primaryKey = primaryKey;
         this.useNenabled = useNenabled;
+        this.useDlastupdate = useDlastupdate;
     }
 
     async create(data) {
@@ -93,22 +94,31 @@ class BaseRepository {
     async update(id, data) {
         const where = typeof id === 'object' && !Array.isArray(id) ? id : { [this.primaryKey]: id };
 
+        const dataToUpdate = { ...data };
+        if (this.useDlastupdate) {
+            dataToUpdate.dlastupdate = new Date();
+        }
+
         const [result] = await knex(this.tableName)
             .where(where)
-            .update({ ...data, dlastupdate: new Date() })
+            .update(dataToUpdate)
             .returning('*');
         return result;
     }
 
     async updateWithList(data) {
         const result = await knex.transaction(async trx => {
-            const queries = data.map(item =>
-                knex(this.tableName)
+            const queries = data.map(item => {
+                const dataToUpdate = { ...item };
+                if (this.useDlastupdate) {
+                    dataToUpdate.dlastupdate = new Date();
+                }
+                return knex(this.tableName)
                     .where({ [this.primaryKey]: item[this.primaryKey] })
-                    .update({ ...item, dlastupdate: new Date() })
+                    .update(dataToUpdate)
                     .returning('*')
-                    .transacting(trx)
-            );
+                    .transacting(trx);
+            });
             return Promise.all(queries);
         });
 
