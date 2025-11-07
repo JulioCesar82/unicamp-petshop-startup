@@ -1,4 +1,5 @@
 const util = require('util');
+
 const petRepository = require('../repositories/postgres/pet.repository');
 const bookingRecommendationRepository = require('../repositories/postgres/bookingRecommendation.repository');
 const vaccineRecommendationRepository = require('../repositories/postgres/vaccineRecommendation.repository');
@@ -22,7 +23,7 @@ const uploadImageAsync = async (req, res, organizationId) => {
     const petId = req.params.id;
     // First, check if the pet exists and belongs to the organization.
     const petExists = await petRepository.findById(petId);
-    if (!petExists) {
+    if (!petExists || petExists.organization_id !== organizationId) {
         return null;
     }
 
@@ -32,7 +33,7 @@ const uploadImageAsync = async (req, res, organizationId) => {
         await uploadToBucketAsync(req, res);
         const imagePath = req.file.path;
 
-        const [updatedPet] = await petRepository.update(petId, { image_path: imagePath }).transacting(trx);
+        const updatedPet = await petRepository.update(petId, { image_path: imagePath }, trx);
 
         await trx.commit();
         return updatedPet;

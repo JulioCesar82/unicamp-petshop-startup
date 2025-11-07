@@ -31,9 +31,9 @@ const getBookingRecommendationsAsync = async ({ tutorId, organizationId, page, p
     return {
         data,
         pagination: {
-            page: parseInt(page),
+            page: parseInt(page, default_page),
             pageSize: parseInt(pageSize, 0),
-            total: parseInt(count, 10),
+            total: parseInt(count, 0),
         },
     };
 };
@@ -64,9 +64,9 @@ const getVaccineRecommendationsAsync = async ({ tutorId, organizationId, page, p
     return {
         data,
         pagination: {
-            page: parseInt(page),
+            page: parseInt(page, default_page),
             pageSize: parseInt(pageSize, 0),
-            total: parseInt(count, 10),
+            total: parseInt(count, 0),
         },
     };
 };

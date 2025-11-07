@@ -1,5 +1,6 @@
 const organizationRepository = require('../repositories/postgres/organization.repository');
 const apiKeyRepository = require('../repositories/postgres/apiKey.repository');
+const organizationInviteRepository = require('../repositories/postgres/organizationInvite.repository');
 const catchAsync = require('../utils/catchAsync');
 const { statusCodes } = require('../config/general');
 const { generateApiKey } = require('../config/organizarion');
@@ -12,8 +13,11 @@ const createAsync = catchAsync(async (req, res) => {
         return res.status(statusCodes.BAD_REQUEST).json({ message: 'Invite code is required.' });
     }
 
-    // In a real application, you would validate the invite_code against a database table.
-    // For this example, we'll assume the code is valid.
+    const validInvite = await organizationInviteRepository.findValidInvite(invite_code);
+
+    if (!validInvite) {
+        return res.status(statusCodes.BAD_REQUEST).json({ message: 'Invalid invite code.' });
+    }
 
     const trx = await knex.transaction();
     try {
@@ -23,6 +27,8 @@ const createAsync = catchAsync(async (req, res) => {
             organization_id: newOrganization.organization_id,
             api_key: apiKey
         }).transacting(trx);
+
+        await organizationInviteRepository.markAsUsed(invite_code, newOrganization.organization_id, trx);
 
         await trx.commit();
 

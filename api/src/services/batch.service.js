@@ -1,4 +1,5 @@
 const { exec } = require('child_process');
+
 const batchRepository = require('../repositories/postgres/batch.repository');
 const { validateJobName, getAllowedCommand, getTableByJobName } = require('../utils/jobValidator');
 const { job_by_table } = require('../config/batch');

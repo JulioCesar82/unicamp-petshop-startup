@@ -28,12 +28,12 @@ const sendEmailAsync = async (tutor, recommendations) => {
 
 const sendSMS = (tutor, recommendations) => {
     console.log(`[SMS] Enviando SMS para ${tutor.phone} sobre ${recommendations.length} novas recomendações.`);
-    // TODO: Lógica de envio de SMS aqui...
+    // TODO: SMS sending logic here...
 };
 
 const sendPushNotification = (tutor, recommendations) => {
     console.log(`[PUSH] Enviando Push Notification para o tutor ${tutor.name} (ID: ${tutor.tutor_id}) sobre ${recommendations.length} novas recomendações.`);
-    // TODO: Lógica de envio de Push Notification aqui...
+    // TODO: Push Notification sending logic here...
 };
 
 const notifyTutorAsync = async (tutor, recommendations) => {

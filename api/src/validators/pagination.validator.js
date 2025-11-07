@@ -1,4 +1,5 @@
 const { query, validationResult } = require('express-validator');
+
 const { statusCodes } = require('../config/general');
 
 const validatePagination = [

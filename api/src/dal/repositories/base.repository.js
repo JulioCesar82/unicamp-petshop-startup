@@ -91,7 +91,7 @@ class BaseRepository {
         };
     }
 
-    async update(id, data) {
+    async update(id, data, trx = null) {
         const where = typeof id === 'object' && !Array.isArray(id) ? id : { [this.primaryKey]: id };
 
         const dataToUpdate = { ...data };
@@ -99,10 +99,16 @@ class BaseRepository {
             dataToUpdate.dlastupdate = new Date();
         }
 
-        const [result] = await knex(this.tableName)
+        let query = knex(this.tableName)
             .where(where)
             .update(dataToUpdate)
             .returning('*');
+
+        if (trx) {
+            query = query.transacting(trx);
+        }
+
+        const [result] = await query;
         return result;
     }
 

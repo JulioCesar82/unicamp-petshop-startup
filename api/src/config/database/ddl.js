@@ -1,4 +1,3 @@
-
 const { pool } = require('../database');
 
 const DDL_SCRIPT = `

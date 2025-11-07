@@ -14,6 +14,10 @@ class PetRepository {
         return this.provider.create(data);
     }
 
+    createWithList(data) {
+        return this.provider.createWithList(data);
+    }
+
     findById(id, columns) {
         return this.provider.findById(id, columns);
     }
@@ -22,12 +26,20 @@ class PetRepository {
         return this.provider.find(filter, options);
     }
 
-    update(id, data) {
-        return this.provider.update(id, data);
+    update(id, data, trx = null) {
+        return this.provider.update(id, data, trx);
     }
 
     softDelete(id) {
         return this.provider.softDelete(id);
+    }
+
+    deleteWithList(ids) {
+        return this.provider.deleteWithList(ids);
+    }
+
+    updateWithList(data) {
+        return this.provider.updateWithList(data);
     }
 
     async findWithTutor(filter = {}, { page = default_page, pageSize = default_page_size, columns = ['pet.*', 'tutor.name as tutor_name'], organizationId = null }) {

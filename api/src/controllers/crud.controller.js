@@ -26,6 +26,9 @@ const createAsync = (repository) => catchAsync(async (req, res) => {
 });
 
 const createWithListAsync = (repository) => catchAsync(async (req, res) => {
+    if (!repository.createWithList) {
+        return res.status(statusCodes.BAD_REQUEST).send({ message: 'This operation is not supported.' });
+    }
     const items = await repository.createWithList(req.body);
 
     res.status(statusCodes.CREATED).send(items);
@@ -43,6 +46,9 @@ const updateAsync = (repository) => catchAsync(async (req, res) => {
 });
 
 const updateWithListAsync = (repository) => catchAsync(async (req, res) => {
+    if (!repository.updateWithList) {
+        return res.status(statusCodes.BAD_REQUEST).send({ message: 'This operation is not supported.' });
+    }
     const items = await repository.updateWithList(req.body);
 
     if (items) {
@@ -64,6 +70,9 @@ const removeAsync = (repository) => catchAsync(async (req, res) => {
 });
 
 const deleteWithListAsync = (repository) => catchAsync(async (req, res) => {
+    if (!repository.deleteWithList) {
+        return res.status(statusCodes.BAD_REQUEST).send({ message: 'This operation is not supported.' });
+    }
     const items = await repository.deleteWithList(req.body);
 
     if (items) {

@@ -86,7 +86,7 @@ const options = {
       ApiKeyAuth: []
     }]
   },
-  apis: ['./src/routes/*.js'], // Caminho para os arquivos que contêm as anotações da API
+  apis: ['./src/routes/*.js'], // Path to the files containing the API annotations
 };
 
 const specs = swaggerJsdoc(options);
