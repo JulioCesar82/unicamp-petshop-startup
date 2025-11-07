@@ -5,9 +5,11 @@ const { job_by_table } = require('../config/batch');
 const { batch_codes } = require('../config/general');
 const { get_timeout } = require('../config/batch');
 const knex = require('../dal/query-builder/knex');
+const logger = require('../config/logger');
 
 const startJobAsync = async (jobName) => {
     console.log('Starting job:', jobName);
+    logger.info('Starting job:', jobName);
 
     validateJobName(jobName);
     const command = getAllowedCommand(jobName);
@@ -32,10 +34,16 @@ const startJobAsync = async (jobName) => {
     console.log(`Starting job ${jobName} with execution ID ${executionId}`);
     console.log(`Executing command: ${command}`);
 
+    logger.info(`Starting job ${jobName} with execution ID ${executionId}`);
+    logger.info(`Executing command: ${command}`);
+
+
     exec(command, (error, stdout, stderr) => {
         const endTime = new Date();
         if (error) {
             console.error(`Error executing job ${jobName}: ${error}`);
+            logger.error(`Error executing job ${jobName}: ${error}`);
+
             batchRepository.update(executionId, {
                 end_time: endTime,
                 status: batch_codes.FAILED,
@@ -43,6 +51,8 @@ const startJobAsync = async (jobName) => {
             });
         } else {
             console.log(`Job ${jobName} completed successfully.`);
+            logger.info(`Job ${jobName} completed successfully.`);
+            
             batchRepository.update(executionId, {
                 end_time: endTime,
                 status: batch_codes.COMPLETED
