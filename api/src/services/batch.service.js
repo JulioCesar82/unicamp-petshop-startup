@@ -7,6 +7,8 @@ const { get_timeout } = require('../config/batch');
 const knex = require('../dal/query-builder/knex');
 
 const startJobAsync = async (jobName) => {
+    console.log('Starting job:', jobName);
+
     validateJobName(jobName);
     const command = getAllowedCommand(jobName);
     const targetTable = getTableByJobName(jobName);
